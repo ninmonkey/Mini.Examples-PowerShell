@@ -1,7 +1,14 @@
+#Requires -Module PSScriptAnalyzer
+
 function Find-PsaRule {
     <#
     .synopsis
         tiny wrapper for searching
+    .example
+        PS> Find-PsaRule -Mode HtmlGrid
+        PS> Find-PsaRule -Mode PassThru
+        PS> Find-PsaRule -Mode OutGrid
+
     .example
         PS> Find-PsaRule            # show prop types
         | Select-Object -First 1 *
@@ -16,68 +23,62 @@ function Find-PsaRule {
     #>
     param(
         # highlight? todo: abstract this logic, filter props by a regex for ( -match 'str1|str2'  ) used in a few places.
-        [Parameter()]
-        [string[]]$Name,
+        [Parameter(Position = 0)]
+        [string[]]$Pattern,
 
-        # show details, then quit
-        [Parameter()]
-        [switch]$Detail,
+        # show details, then quit. does nothing really.
+        # [Parameter()]
+        # [switch]$Detail,
 
-        # out grid/html
-        [Parameter()]
-        [switch]$OutGridView,
+        # output mode
+        [Parameter(Position = 1)]
+        [Alias('Mode')]
+        [ValidateSet('PassThru', 'OutGrid', 'HtmlGrid')]
+        [string]$OutFormat = 'PassThru',
 
-        # out grid/html
+        # show details, then quit. does nothing really.
         [Parameter()]
-        [switch]$NotHtmlOut
+        [alias('SortOrder')]
+        [string[]]$HeaderOrder = ('SourceName', 'RuleName', 'Severity', 'Description')
     )
 
+
     $rules = PSScriptAnalyzer\Get-ScriptAnalyzerRule
+    | Sort-Object -Property SourceName, RuleName, Severity
 
-    if ($Detail) {
+    if ( $pattern ) {
+        'filter'
+        # $rules = $rules | %{
+        return;
 
-        Write-ConsoleHeader 'SourceNames' -af 0
-        PSScriptAnalyzer\Get-ScriptAnalyzerRule
-        | Group-Object SourceName -NoElement | Sort-Object Count
     }
-    # | Out-Default | Write-Information
-    Label 'htmlout' $hasOutHtml
-    Label 'not' $nothatm
-    if ($OutGridView) {
-        $hasOutHtml = Get-Command 'Out-GridHtml' -ea ignore
-        if ($NotHtmlOut -or (!$hasOutHtml) ) {
-            'sdf'
-        }
-        else {
-        }
 
-        # if (($NotHtmlOut) -and $hasOutHtml) {
-        #     $rules | Out-GridHtml #-Verbose
-        # }
-        # else {
-        #     # $rules | Out-GridView
-        #     # $rules | Select-Object * | Out-GridView
-        #     $f = 3
+    # if ($Detail) {
+    #     Write-ConsoleHeader 'SourceNames' -af 0
+    #     $rules
+    #     | Group-Object SourceName -NoElement | Sort-Object Count
 
-        # }
-
-        # if ($OutGridView) {
-        #     if ( -and (Get-Command -ea ignore 'Out-GridHtml')) {
-        #     }
-        #     else {
-        #     }
-        # }
-
+    #     return
+    # }
+    if ($OutFormat -eq 'PassThru') {
+        $rules
         return
     }
+    $rules = $rules
+    | Select-Object -Property $HeaderOrder
 
-
-    $rules
+    switch ($OutFormat) {
+        'OutGrid' {
+            $rules | Out-GridView -PassThru
+            break
+        }
+        'HtmlGrid' {
+            $rules | Out-GridHtml -PassThru
+            break
+        }
+        default {
+            # ShouldNever
+        }
+    }
 }
 
-# | Group-Object SourceName -NoElement | Sort-Object Count
-# | Select-Object -First 1 *
-
-# Find-PsaRule -Detail
-# Find-PsaRule -OutGridView -NotHtmlOut
-# Find-PsaRule -OutGridView
