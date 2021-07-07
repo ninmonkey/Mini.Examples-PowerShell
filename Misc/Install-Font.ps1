@@ -43,6 +43,7 @@ function Install-Fonts {
     - [ ] does this make the font intraspectable for all apps?
     - [ ] needs shouldprocesses
     #>
+    [cmdletbinding(SupportsShouldProcess, PositionalBinding = $false)]
     param (
         [alias('Font')]
         [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
@@ -92,8 +93,16 @@ function Install-Fonts {
                 registryName      = $registryName | Join-String -SingleQuote
             }
             $metaDebug | Format-List * | Out-String  | Write-Information
+            if ($PSCmdlet.ShouldProcess($FontObject.FullName, 'Install Font')) {
 
-            'would write' | Write-Host -fore green
+                Copy-Item -Path $FontObject -Destination $FontDestPath -Force
+                New-ItemProperty -Name $registryName -Path $Dest_Registry -PropertyType string -Value $FontObject.Name
+                'would write' | Write-Host -fore green
+            }
+            Copy-Item -Path $FontObject -Destination $FontDestPath -Force
+
+            # New-ItemProperty -Name $fn -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Fonts' -PropertyType string -Value $font
+            # New-ItemProperty -Name $fn -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Fonts' -PropertyType string -Value $font
             # Copy-Item -Path $fontFile -Destination "C:\Windows\Fonts\$font" -Force
             # New-ItemProperty -Name $fn -Path 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Fonts' -PropertyType string -Value $font
         }
@@ -107,5 +116,5 @@ function Install-Fonts {
 Get-FontInfo
 $PathSrcFiraNerd = Get-Item -ea stop 'C:\Users\cppmo_000\Downloads\nerdfont variants\FiraCode'
 $FontList = Get-ChildItem $PathSrcFiraNerd | Select-Object -First 2
-$FontList | Install-Fonts -Debug -ea break -infa Continue
+$FontList | Install-Fonts -Debug -ea break -infa Continue -WhatIf
 #endregion
