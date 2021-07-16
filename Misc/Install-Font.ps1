@@ -51,6 +51,7 @@ function Install-Fonts {
     )
     begin {
         $Dest_Filesystem = Get-Item -ea stop "$Env:LocalAppData\Microsoft\Windows\Fonts"
+        $Dest_Filesystem_Global = Get-Item -ea Continue 'C:\Windows\Fonts'
         $Dest_Registry = 'HKLM:\Software\Microsoft\Windows NT\CurrentVersion\Fonts'
     }
 
@@ -96,8 +97,20 @@ function Install-Fonts {
             if ($PSCmdlet.ShouldProcess($FontObject.FullName, 'Install Font')) {
 
                 Copy-Item -Path $FontObject -Destination $FontDestPath -Force
+
+                'Copied font: [{0}] -> [{1}]' -f @(
+                    $FontObject,
+                    $FontDestPath
+                ) | Write-Host -fore green
+
+
                 New-ItemProperty -Name $registryName -Path $Dest_Registry -PropertyType string -Value $FontObject.Name
-                'would write' | Write-Host -fore green
+
+                'Set Key: [{0}] -> [{1} = {2}]' -f @(
+                    $Dest_Registry,
+                    $registryName,
+                    $FontObject.Name
+                ) | Write-Host -fore green
             }
             Copy-Item -Path $FontObject -Destination $FontDestPath -Force
 
@@ -113,8 +126,21 @@ function Install-Fonts {
     end {}
 }
 
-Get-FontInfo
+
+throw @'
+    finish, and see
+
+- [ ] better post: <https://jordanmalcolm.com/deploying-windows-10-fonts-at-scale/>
+- [ ] check SO to verify it's the correct way to install font
+- [ ] COM shell: https://www.powershellgallery.com/packages/PSWinGlue/0.3.3/Content/Functions%5CInstall-Font.ps1
+- [ ] registr: https://powers-hell.com/2020/06/09/installing-fonts-with-powershell-intune/
+- [ ] old answers here: https://stackoverflow.com/a/61035940/341744
+- [ ] shouldprocess: https://docs.microsoft.com/en-us/powershell/scripting/learn/deep-dives/everything-about-shouldprocess?view=powershell-7.1#supportsshouldprocess
+- [ ] When installed manually, the item property is not always the font name.
+'@
+# Get-FontInfo
 $PathSrcFiraNerd = Get-Item -ea stop 'C:\Users\cppmo_000\Downloads\nerdfont variants\FiraCode'
 $FontList = Get-ChildItem $PathSrcFiraNerd | Select-Object -First 2
-$FontList | Install-Fonts -Debug -ea break -infa Continue -WhatIf
+# $FontList | Install-Fonts -Debug -ea break -infa Continue -WhatIf
+$FontList | Install-Fonts -Debug -ea break -infa Continue
 #endregion
