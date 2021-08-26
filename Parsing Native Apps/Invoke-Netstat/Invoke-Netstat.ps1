@@ -15,8 +15,12 @@ $RegexNetstat = @'
     (?<Pid>\S+)$
 '@
 
-h1 'NetStat'
-$NetstatStdout ??= & netstat -a -n -o
+
+if (! $NetstatStdout) {
+    $NetstatStdout = & netstat -a -n -o
+}
+# If you're on Pwsh7 you can simplify it using null-*-operators
+# $NetstatStdout ??= & netstat -a -n -o
 
 function Format-NetStat {
     param(
@@ -41,3 +45,5 @@ function Format-NetStat {
 
 $Stats = $NetstatStdout | Format-NetStat
 $stats | Format-Table
+
+'Results were saved to $stats'
