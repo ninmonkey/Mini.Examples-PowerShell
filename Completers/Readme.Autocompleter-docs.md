@@ -1,3 +1,5 @@
+[Back ↑](..)
+
 # Autocompleter docs
 
 - [completer dotnet](https://github.com/ninmonkey/Ninmonkey.Console/blob/master/public/completer/Completer-dotnet.ps1)
