@@ -2,8 +2,7 @@
 
 # `gh` Github CLI
 
-Many examples are from the docs or manpages 
-
+- Autocompleter script for `gh` [Completers/ExternalExamples/gh.ps1](../../Completers/ExternalExamples/gh.ps1)
 
 ## Blog posts / Releases
 
