@@ -12,7 +12,10 @@ $samples = 0..1 | ForEach-Object {
 }
 
 $ConfigTT = @{
-    ExportMd = $false
+    ExportMd       = $true
+    # SingleTestOnly = $True
+    SingleTestOnly = $False
+    MDInjectColor  = $true
 }
 
 function Test-what {
@@ -110,17 +113,35 @@ function Format-ResultSummary {
         $title = 'A XOR B'
         Add-Member -InputObject $item  -NotePropertyName $title -NotePropertyValue $test_result -PassThru
 
+        if ($ConfigTT.SingleTestOnly) {
+            return
+        }
+
         $test_result = ! $Item.Fg -and ! $Item.Bg
         $title = '! A -and ! B'
-        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result -PassThru
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result
 
         $test_result = ! ($Item.Fg) -and ! ($Item.Bg)
         $title = '! (A) -and ! (B)'
-        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result -PassThru
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result
 
         $test_result = (! $Item.Fg) -and (! $Item.Bg)
-        $title = '(! A) -and ! (! B)'
-        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result -PassThru
+        $title = '(! A) -and (! B)'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result
+
+        # ----
+
+        $test_result = ! $Item.Fg -or ! $Item.Bg
+        $title = '! A -or ! B'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result
+
+        $test_result = ! ($Item.Fg) -or ! ($Item.Bg)
+        $title = '! (A) -or ! (B)'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result
+
+        $test_result = (! $Item.Fg) -or (! $Item.Bg)
+        $title = '(! A) -or (! B)'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result
     }
 
     # quick hack, using csv to simplify writing headers
@@ -181,21 +202,39 @@ $FinalText = $accumStr | Join-String
 'Config'; $ConfigTT | Format-Table
 
 hr; $FinalText; hr;
-
 if ($ConfigTT.ExportMd) {
     try {
-        $DestPath = (Join-Path $PSScriptRoot '.output/tt_xor.md')
+
+        $DestPath_Single = (Join-Path $PSScriptRoot '.output/tt_xor.md')
+        $DestPath_Many = (Join-Path $PSScriptRoot '.output/tt_many.md')
+        $DestPath = ($ConfigTT.SingleTestOnly) ? $DestPath_Single : $DestPath_Many
         $FinalText | Set-Content -Path $DestPath
+        "Wrote to: '$DestPath'"
+
+        # quick hack to add color, should be in the table builder
+
+        if (! $ConfigTT.MDInjectColor) {
+            return
+        }
+
+        $HtmlColoredText = $FinalText -replace
+        '\bFalse\b', '<span style=''color:red;''>False</span>' -replace
+        '\bTrue\b', '<span style=''color:green;''>True</span>'
+
+        $DestPath_Single = (Join-Path $PSScriptRoot '.output/tt_xor-color.md')
+        $DestPath_Many = (Join-Path $PSScriptRoot '.output/tt_many-color.md')
+        $DestPath = ($ConfigTT.SingleTestOnly) ? $DestPath_Single : $DestPath_Many
+        $HtmlColoredText | Set-Content -Path $DestPath
         "Wrote to: '$DestPath'"
     }
     catch {
         $_
-        if ($_.Exception.ToString() -match 'system.io') {
-            throw "You can disable writing using '`$ConfigTT.ExportMd'"
-        }
-        else {
-            $PSCmdlet.ThrowTerminatingError($_)
-        }
+        # if ($_.Exception.ToString() -match 'system.io') {
+        #     throw "You can disable writing using '`$ConfigTT.ExportMd'"
+        # }
+        # else {
+        #     $PSCmdlet.ThrowTerminatingError($_)
+        # }
 
     }
 }
