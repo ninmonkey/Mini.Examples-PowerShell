@@ -1,3 +1,11 @@
+<#
+    About:
+
+        A simple truth table example spiraled into a Markdown Table generator.
+        Color is included.
+#>
+
+# Cartesian join of ($true, $false) on itself
 $samples = 0..1 | ForEach-Object {
     [bool]$Foreground = $_
     0..1 | ForEach-Object {
@@ -18,9 +26,7 @@ $ConfigTT = @{
     MDInjectColor  = $true
 }
 
-function Test-what {
 
-}
 function Test-Xor {
     <#
     .synopsis
@@ -50,26 +56,16 @@ function _Write_MarkdownTableColumns {
         [int]$NumColumns
     )
 
-    # end {
+    end {
+        $splatEmptyColumn = @{
+            Separator    = ' | '
+            OutputPrefix = '| '
+            OutputSuffix = ' | '
+            Property     = { ' - ' }
+        }
 
-    $splatEmptyColumn = @{
-        Separator    = ' | '
-        OutputPrefix = '| '
-        OutputSuffix = ' | '
-        Property     = { ' - ' }
+        1..$numColumns | Join-String @splatEmptyColumn
     }
-
-    1..$numColumns | Join-String @splatEmptyColumn
-    # }
-    # refactor: $splat_ColumnHeaders and $splatEmptyColumn are almost identical
-    # $splatEmptyColumn = @{
-    #     Separator    = ' | '
-    #     OutputPrefix = '| '
-    #     OutputSuffix = ' | '
-    #     Property     = { ' - ' }
-    # }
-
-    # 1..$numColumn | Join-String @splatEmptyColumn { $_ }
 }
 
 function _write_MarkdownHeader {
@@ -211,12 +207,12 @@ if ($ConfigTT.ExportMd) {
         $FinalText | Set-Content -Path $DestPath
         "Wrote to: '$DestPath'"
 
-        # quick hack to add color, should be in the table builder
 
         if (! $ConfigTT.MDInjectColor) {
             return
         }
 
+        # quick hack to add color, should be in the table builder
         $HtmlColoredText = $FinalText -replace
         '\bFalse\b', '<span style=''color:red;''>False</span>' -replace
         '\bTrue\b', '<span style=''color:green;''>True</span>'
@@ -228,13 +224,13 @@ if ($ConfigTT.ExportMd) {
         "Wrote to: '$DestPath'"
     }
     catch {
-        $_
-        # if ($_.Exception.ToString() -match 'system.io') {
-        #     throw "You can disable writing using '`$ConfigTT.ExportMd'"
-        # }
-        # else {
-        #     $PSCmdlet.ThrowTerminatingError($_)
-        # }
+
+        if ($_.Exception.ToString() -match 'system.io') {
+            throw "You can disable writing using '`$ConfigTT.ExportMd'"
+        }
+        else {
+            $PSCmdlet.ThrowTerminatingError($_)
+        }
 
     }
 }
