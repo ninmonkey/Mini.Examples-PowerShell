@@ -1,3 +1,5 @@
+[Back ↑](..) | [Readme.md](readme.md)
+
 # Manual Examples
 
 see: summary of all commands on one page [https://cli.github.com/manual/gh_help_reference](https://cli.github.com/manual/gh_help_reference)

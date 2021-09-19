@@ -12,10 +12,11 @@ $samples = 0..1 | ForEach-Object {
 }
 
 $ConfigTT = @{
-    ExportMd = $true
+    ExportMd = $false
 }
 
 function Test-what {
+
 }
 function Test-Xor {
     <#
@@ -102,19 +103,29 @@ function _write_MarkdownHeader {
 function Format-ResultSummary {
     [cmdletbinding()]
     param()
-
-    $results = $samples | ForEach-Object {
+`
+        $results = $samples | ForEach-Object {
         $item = $_
         $test_result = Test-Xor $item.Fg $item.Bg
-        Add-Member -InputObject $item  -NotePropertyName 'XOR Output' -NotePropertyValue $test_result -PassThru
+        $title = 'A XOR B'
+        Add-Member -InputObject $item  -NotePropertyName $title -NotePropertyValue $test_result -PassThru
+
+        $test_result = ! $Item.Fg -and ! $Item.Bg
+        $title = '! A -and ! B'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result -PassThru
+
+        $test_result = ! ($Item.Fg) -and ! ($Item.Bg)
+        $title = '! (A) -and ! (B)'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result -PassThru
+
+        $test_result = (! $Item.Fg) -and (! $Item.Bg)
+        $title = '(! A) -and ! (! B)'
+        Add-Member -InputObject $item  -NotePropertyName $Title -NotePropertyValue $test_result -PassThru
     }
 
     # quick hack, using csv to simplify writing headers
     $ColumnNames = $results[0].PSObject.Properties.Name
     $ColumnCount = $ColumnNames.Count
-
-    # $results[0] | Select-Object $ColumnNames
-
     # header
     @(
         $splat_ColumnHeaders = @{
@@ -124,10 +135,10 @@ function Format-ResultSummary {
         }
 
         $ColumnNames | Join-String @splat_ColumnHeaders
-        $ColumnNames | Join-String @splat_ColumnHeaders | Write-Debug
+        # $ColumnNames | Join-String @splat_ColumnHeaders | Write-Debug
 
         _write_MarkdownTableColumns $ColumnCount
-        _write_MarkdownTableColumns $ColumnCount | Write-Debug
+        # _write_MarkdownTableColumns $ColumnCount | Write-Debug
 
         $results | Select-Object -Skip 0 | ForEach-Object {
             $record = $_
@@ -149,7 +160,7 @@ function Format-ResultSummary {
 
             $row | Join-String @splat_TableRecord
 
-            $row | Join-String @splat_TableRecord | Write-Debug
+            # $row | Join-String @splat_TableRecord | Write-Debug
 
 
         }
@@ -157,29 +168,34 @@ function Format-ResultSummary {
 }
 
 
-$accumStr = [Text.StringBuilder]::new()
+# See also:
+#     <https://docs.microsoft.com/en-us/dotnet/standard/base-types/composite-formatting>
+#     with <https://docs.microsoft.com/en-us/dotnet/api/system.text.stringbuilder.appendformat?view=net-5.0>
 
-# Truth table results
-$template_page = @'
-{0}
-{1}
-'@
+[Text.StringBuilder]$accumStr = [Text.StringBuilder]::new()
+[void]$accumStr.AppendLine( (mdHeader 2 'Truth Table: XOR') )
+[void]$accumStr.AppendLine( "XOR means: A or B is true, but neither both and neither none`n" )
+[void]$accumStr.AppendLine( (Format-ResultSummary) )
+$FinalText = $accumStr | Join-String
 
-$accumStr.Append( (mdHeader 2 'Truth Table: XOR') )
+'Config'; $ConfigTT | Format-Table
 
-$accumStr.Append( (Format-ResultSummary) )
-# $markdown = Format-ResultSummary
-# $FinalText = $template_page -f @($markdown)
-# $FinalText
-
-$accumStr
-
-hr
+hr; $FinalText; hr;
 
 if ($ConfigTT.ExportMd) {
-    $DestPath = (Join-Path $PSScriptRoot '.output/tt_xor.md')
-    $FinalText | Set-Content -Path $DestPath
-    "Wrote to: '$DestPath'"
+    try {
+        $DestPath = (Join-Path $PSScriptRoot '.output/tt_xor.md')
+        $FinalText | Set-Content -Path $DestPath
+        "Wrote to: '$DestPath'"
+    }
+    catch {
+        $_
+        if ($_.Exception.ToString() -match 'system.io') {
+            throw "You can disable writing using '`$ConfigTT.ExportMd'"
+        }
+        else {
+            $PSCmdlet.ThrowTerminatingError($_)
+        }
+
+    }
 }
-# $results = Format-ResultSummary -debug
-# $results
