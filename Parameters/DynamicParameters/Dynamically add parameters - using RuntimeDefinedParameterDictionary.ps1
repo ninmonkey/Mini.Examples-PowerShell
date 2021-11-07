@@ -1,6 +1,10 @@
 using namespace System.Management.Automation
 using namespace System.Collections
 <#
+New in Pwsh 7.2
+    > Beginning in PowerShell 7.2, a new feature was added that allows you to define more generic implementations of parameterized argument completers.
+    > By deriving from ArgumentCompleterAttribute, it's <https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_argument_completion?view=powershell-7.2#class-based-argument-completers>
+
 Refs:
 
 [IValidateSetValuesGenerator](https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.core/about/about_functions_advanced_parameters?view=powershell-7.2#dynamic-parameters)
@@ -53,7 +57,7 @@ function New-Animal {
             $pAttr = [ParameterAttribute]::new()
             $pAttr.ParameterSetName = 'SubtypeCat'
             $pAttr.Mandatory = $true
-            $pAttr.HelpMessage = '?help Messege'      # isn't accessable afaik
+            $pAttr.HelpMessage = '?help Message'      # isn't accessable afaik
             $pAttr.HelpMessageBaseName = '?help Base' # isn't accessable afaik
             $pAttr.Position = 1
 
@@ -78,4 +82,8 @@ function New-Animal {
         }
         $animal
     }
+}
+
+0..10 | ForEach-Object {
+    $_
 }
