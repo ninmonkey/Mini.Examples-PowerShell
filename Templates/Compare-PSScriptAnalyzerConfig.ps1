@@ -5,6 +5,21 @@ about:
 
     Invoke-Formatter
 #>
+$meta = @{
+    PSScriptAnalyzer                    = Get-Module PSScriptAnalyzer | ForEach-Object Version | ForEach-Object tostring
+    Powershell                          = $PSVersionTable.PSVersion.ToString()
+    PowerShellEditorServices            = '0.2.0'
+    EditorServicesCommandSuite          = '1.0.0'
+    'PowerShellEditorServices.Commands' = '0.2.0'
+}
+
+$versionTableMD = @(
+    'Module', 'Version' | str Table
+    ' - ', ' - ' | str Table
+    $meta.GetEnumerator() | ForEach-Object {
+        $_.key, $_.Value | str Table
+    }
+) -join "`n"
 
 $script = @'
 Get-ChildItem |
@@ -13,7 +28,9 @@ Where-Object Name -Like 'foo'
 Get-ChildItem |
 ForEach-Object Name
 '@
-
+$script = @'
+Write-Verbose "$functionName User did not specify Region, using default values $($Region -join ', ')."
+'@
 $settings = @{
     IncludeRules = @('PSUseConsistentIndentation')
     Rules        = @{
@@ -42,12 +59,17 @@ PSScriptAnalyzer\Invoke-Formatter -ScriptDefinition $script -Settings $settings
 | Out-Null
 
 $doc += @'
+## Environment
+
+{0}
+
 ## Initial script
 
 ```ps1
-{0}
+{1}
 ```
 '@ -f @(
+    $versionTableMD
     $script
 )
 
@@ -63,7 +85,10 @@ foreach ($mode in ('IncreaseIndentationAfterEveryPipeline', 'IncreaseIndentation
 
 }
 hr
+$dest = (Join-Path $PSScriptRoot 'doc.md')
 
-$doc | sc -path 'temp:\doc.md'
+$doc | sc -path $dest
+# $doc | sc -path 'temp:\doc.md'
 Hr
-Get-Content (Get-Item 'temp:\doc.md')
+Get-Content $dest
+# Get-Content (Get-Item 'temp:\doc.md')
