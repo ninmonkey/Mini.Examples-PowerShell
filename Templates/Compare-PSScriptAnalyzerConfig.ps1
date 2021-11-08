@@ -25,13 +25,45 @@ $settings = @{
         }
     }
 }
+$templateFence = @'
+
+```ps1
+{0}
+```
+
+'@
 "
 
 To reproduce: PipelineIndentation = None`n"
+
+[string]$doc = ''
+
 PSScriptAnalyzer\Invoke-Formatter -ScriptDefinition $script -Settings $settings
+| Out-Null
+
+$doc += @'
+## Initial script
+
+```ps1
+{0}
+```
+'@ -f @(
+    $script
+)
 
 foreach ($mode in ('IncreaseIndentationAfterEveryPipeline', 'IncreaseIndentationForFirstPipeline', 'IncreaseIndentationAfterEveryPipeline', 'NoIndentation', 'None', '')) {
-    "`n`n### Mode: '$Mode' `n`n"
+    $line = "`n`n**Mode**: ``$Mode```n`n"    
     $settings.Rules.PSUseConsistentIndentation.PipelineIndentation = $Mode
-    PSScriptAnalyzer\Invoke-Formatter -ScriptDefinition $script -Settings $settings
+    $result = PSScriptAnalyzer\Invoke-Formatter -ScriptDefinition $script -Settings $settings
+    
+    $doc += $line    
+    $doc += $templateFence -f @(
+        $result
+    )
+
 }
+hr
+
+$doc | sc -path 'temp:\doc.md'
+Hr
+Get-Content (Get-Item 'temp:\doc.md')

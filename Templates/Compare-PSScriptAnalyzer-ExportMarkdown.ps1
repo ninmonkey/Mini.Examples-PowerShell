@@ -91,8 +91,8 @@ function Write-Newline {
     "`n" * $count
 }
 
-$AlwaysOpen = $false
 $AlwaysOpen = $true
+$AlwaysOpen = $false
 
 "To reproduce: PipelineIndentation = None`n"
 PSScriptAnalyzer\Invoke-Formatter -ScriptDefinition $script -Settings $settings
@@ -108,7 +108,7 @@ foreach ($mode in ('IncreaseIndentationAfterEveryPipeline', 'IncreaseIndentation
     # $mdDoc += New-MarkdownHeader -InputText "Mode: '$Mode'"
     $mdDoc += Write-Newline 2
     
-    result = $settings | ConvertTo-Json
+    $result = $settings | ConvertTo-Json
     $result
     $mdDoc += New-MarkdownCodeFence $result -Language json
 
