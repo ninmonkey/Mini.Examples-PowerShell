@@ -34,7 +34,7 @@ function Get-ObjectTypeInfo {
         # $tinfo.FullName #| Write-Debug
         $tinfo.Name
     }
-}1
+}
 
 & {
     $strTypeName = @{
