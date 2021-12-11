@@ -1,5 +1,5 @@
 #Requires -Version 7.0
-using namespace system.collections.generic
+
 
 $App = @{ Root = Get-Item -ea stop $PSScriptRoot }
 Set-Location $App.Root
@@ -66,7 +66,20 @@ function Find-DosCommandInfo {
 }
 
 # "main" , the entry point
-$namesToQuery = 'CMD', 'FOR'
+
+Find-DosCommandInfo
+
+$pathCsv = Join-Path $App.Export 'CommandNames.csv'
+$commands = Import-Csv -LiteralPath $pathCsv
+$commands | Sort-Object Command
+"Wrote: '$pathCsv'"
+
+$namesToQuery = $commands
+| Where-Object Command # filter any blanks
+| ForEach-Object Command | Sort-Object -Unique
+
+
+# $namesToQuery = 'CMD', 'FOR' # or just generate a couple
 $namesToQuery | ForEach-Object {
     $Label = $_
     $exportSplat = New-ExportDocSplat -label $Label
@@ -89,12 +102,6 @@ $namesToQuery | ForEach-Object {
     )
 }
 
-Find-DosCommandInfo
-$pathCsv = Join-Path $App.Export 'CommandNames.csv'
-$commands = Import-Csv -LiteralPath $pathCsv
-
-$commands | Sort-Object Command
-"Wrote: '$pathCsv'"
 
 # hr
 # $commands
@@ -104,6 +111,16 @@ $commands | Sort-Object Command
     # otherwise 'Start-Process -Wait' fixes any locked file race
     Start-Sleep 0.3
     Get-ChildItem $App.Export -Recurse *stderr*
-    | Where-Object Length -EQ 0 | Remove-Item -ea continue
+    | Where-Object Length -EQ 0 | Remove-Item -ea ignore
 }
-return
+
+$findErrors = Get-ChildItem .\output\ *stderr* -Recurse | Where-Object Length -NE 0
+foreach ($err in $findErrors) {
+    @(
+        'command had errors: ', $err.Name -join ''
+        $err.FullName | Join-String -DoubleQuote
+        Write-ConsoleHorizontalRule
+
+        Get-Content $err
+    ) | Write-TextColor -fg 'orange'
+}
