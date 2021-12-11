@@ -1,0 +1,11 @@
+Creates a symbolic link.
+
+MKLINK [[/D] | [/H] | [/J]] Link Target
+
+        /D      Creates a directory symbolic link.  Default is a file
+                symbolic link.
+        /H      Creates a hard link instead of a symbolic link.
+        /J      Creates a Directory Junction.
+        Link    Specifies the new symbolic link name.
+        Target  Specifies the path (relative or absolute) that the new link
+                refers to.
