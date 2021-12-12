@@ -67,21 +67,28 @@ function Find-DosCommandInfo {
 
 # "main" , the entry point
 
-Find-DosCommandInfo
+# Find-DosCommandInfo
 
 $pathCsv = Join-Path $App.Export 'CommandNames.csv'
-$commands = Import-Csv -LiteralPath $pathCsv
+# $pathCsv = 'CommandNames.csv'
+$commands = Import-Csv -Path $pathCsv
 $commands | Sort-Object Command
-"Wrote: '$pathCsv'"
+# "Wrote: '$pathCsv'"
 
 $namesToQuery = $commands
 | Where-Object Command # filter any blanks
 | ForEach-Object Command | Sort-Object -Unique
 
-
+# return
 # $namesToQuery = 'CMD', 'FOR' # or just generate a couple
-$namesToQuery | ForEach-Object {
+$namesToQuery
+| Where-Object name -NotMatch 'diskpart'
+| ForEach-Object {
     $Label = $_
+    if ($Label -match 'diskpart') {
+        return
+        # there's a couple  'diskpart' fitlers that may be redundant, better safe .
+    }
     $exportSplat = New-ExportDocSplat -label $Label
     # "<cmd> /?" and "<help> <cmd>" seem to be the same
     # So I chose 'help' because it is the safer one on failures
@@ -102,10 +109,8 @@ $namesToQuery | ForEach-Object {
     )
 }
 
-
-# hr
-# $commands
-# | Format-List
+$commands
+| Format-List
 & {
     # remove empty files. Sleeping makes a locked file less likely
     # otherwise 'Start-Process -Wait' fixes any locked file race
@@ -124,3 +129,6 @@ foreach ($err in $findErrors) {
         Get-Content $err
     ) | Write-TextColor -fg 'orange'
 }
+
+'Save as "$Commands"'
+'Files saved to: {0}' -f @($App.Export | Join-String -DoubleQuote)
