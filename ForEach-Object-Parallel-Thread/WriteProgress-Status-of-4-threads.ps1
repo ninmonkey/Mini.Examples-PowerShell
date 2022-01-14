@@ -1,12 +1,13 @@
 #Requires -Version 7.0.0
 
 Get-Item -ea ignore (Join-Path $PSScriptRoot 'Readme.md') | Show-Markdown
+| Out-Null
 
 function WriteProgressTest {
     param(
         # num input data
         [Parameter()][int]$NumRecords = 5,
-        [Parameter()][int]$SleepMod = 1200,
+        [Parameter()][int]$SleepMod = 1,
         # for -ThrottleLimit
         [ALias('ThrottleLimit')]
         [Parameter()][int]$NumThreads = 3
@@ -36,6 +37,7 @@ function WriteProgressTest {
             }
         ) | Select-Object -First $NumRecords
         # $dataset | Format-Dict
+        # $PSBoundParameters | Format-Table | Write-Host
 
         # Create a hashtable for process.
         # Keys should be ID's of the processes

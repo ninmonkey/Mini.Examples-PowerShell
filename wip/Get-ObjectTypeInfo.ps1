@@ -1,5 +1,7 @@
 #Requires -Version 7
 
+# for: -> Types -> Get-TypeInfo.ps1
+
 function Get-ObjectTypeInfo {
     <#
     .synopsis
@@ -18,17 +20,17 @@ function Get-ObjectTypeInfo {
         [object]$InputObject
     )
     process {
-        if ($null -eq $InputObject) { 
-            return 
+        if ($null -eq $InputObject) {
+            return
         }
-        if ($InputObject -is 'type') { 
+        if ($InputObject -is 'type') {
             $tinfo = $InputObject
         } elseif ($InputObject -is 'string' ) {
             $maybeType = $InputObject -as 'type'
-            if ($maybeType) { 
+            if ($maybeType) {
                 $tinfo = $maybeType
             }
-        } else {       
+        } else {
             $tinfo = $InputObject.GetType()
         }
         # $tinfo.FullName #| Write-Debug
@@ -50,7 +52,7 @@ function Get-ObjectTypeInfo {
     | Get-ObjectTypeInfo -Debug
     | Join-String @strTypeName
 
-    'Validate' | Join-String @strHeader    
+    'Validate' | Join-String @strHeader
     $results | Should -Be '[Int32], [UInt32], [Int32], [Int32]'
 
     "It's good"

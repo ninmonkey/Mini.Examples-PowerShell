@@ -13,15 +13,11 @@ Describe 'Describe Nested Foreach <name> <symbol>' -ForEach @(
         'Test'
     )
     It 'Nested Multiple Hashtable TestCase <kind> <name> <symbol>' { $true } -TestCases @(
-        @{
-            Name = 'Pester1'
-        }
-        @{
-            Name = 'Pester2'
-        }
+        @{ Name = 'Pester1' }
+        @{ Name = 'Pester2' }
     )
 
-    Context 'Context Nested Foreach <name> <ContextValue>' -ForEach @(
+    Context 'Context Nested Foreach <name> <ContextValue>' -Foreach @(
         @{ ContextValue = 'Test1' }
         @{ ContextValue = 'Test2' }
     ) {
