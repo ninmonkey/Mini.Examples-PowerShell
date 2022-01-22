@@ -6,8 +6,8 @@ quote: [Hashtable remarks](https://docs.microsoft.com/en-us/dotnet/api/system.co
 > We don't recommend that you use the Hashtable class for new development. Instead, we recommend that you use the generic Dictionary<TKey,TValue> class. For more information, see Non-generic collections shouldn't be used on GitHub.
 
 #>
-$env_gi = Get-Item env:\
-$env_ls = Get-ChildItem env:\
+$env_fromGi = Get-Item env:\
+$env_fromLs = Get-ChildItem env:\
 h1 'from Get-Item'
 _dumpPsTypeName $env_fromGi
 h1 'from Get-ChildItem'

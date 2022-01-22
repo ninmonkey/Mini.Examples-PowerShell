@@ -1,4 +1,5 @@
 $APP_PATH_ROOT = Get-Item -ea stop $PSScriptRoot
+$APP_PATH_ROOT = Get-Item 'C:/nin_temp/formatdata/' -ea stop
 
 function _exportFormatData {
     <#
@@ -42,6 +43,7 @@ function _exportFormatData {
 }
 
 $typeList = @(
+    'Microsoft.Management.Infrastructure.CimInstance'
     'System.RuntimeType'
     'System.IO.FileInfo'
     'System.IO.DirectoryInfo'

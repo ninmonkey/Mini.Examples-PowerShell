@@ -1,0 +1,66 @@
+[38;2;153;153;153m---------------------------------------------------------------------------------------------------[39m
+
+[38;2;235;203;139m# from Get-Item[39m
+
+[38;2;153;153;153m---------------------------------------------------------------------------------------------------[39m
+[38;2;0;255;0mbaseType.fullname[39m: System.Object
+[38;2;0;255;0mbase [str][39m: System.Object
+[38;2;0;255;0mroot [str][39m: System.Collections.Generic.Dictionary`2+ValueCollection[string,System.Collections.DictionaryEntry]
+[38;2;0;255;0mpsobject->psbase->TypeNameOfValue[39m: System.Management.Automation.PSMemberSet
+[38;2;153;153;153m---------------------------------------------------------------------------------------------------[39m
+<#
+$obj.PSTypeNames:
+    'System.Collections.Generic.Dictionary`2+ValueCollection[[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.DictionaryEntry, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'
+    'System.Object'
+<#
+$obj[0].PSTypeNames:
+    'System.Collections.Generic.Dictionary`2+ValueCollection[[System.String, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e],[System.Collections.DictionaryEntry, System.Private.CoreLib, Version=6.0.0.0, Culture=neutral, PublicKeyToken=7cec85d7bea7798e]]'
+    'System.Object'
+
+[38;2;235;203;139m# child[39m
+
+System.Collections.DictionaryEntry
+System.ValueType
+System.Object
+#>
+
+[38;2;235;203;139m# from Get-ChildItem[39m
+
+[38;2;153;153;153m---------------------------------------------------------------------------------------------------[39m
+[38;2;0;255;0mbaseType.fullname[39m: System.Array
+[38;2;0;255;0mbase [str][39m: array
+[38;2;0;255;0mroot [str][39m: System.Object[]
+[38;2;0;255;0mpsobject->psbase->TypeNameOfValue[39m: System.Management.Automation.PSMemberSet
+[38;2;153;153;153m---------------------------------------------------------------------------------------------------[39m
+<#
+$obj.PSTypeNames:
+    'System.Array'
+    'System.Object'
+    'System.Object[]'
+<#
+$obj[0].PSTypeNames:
+    'System.Collections.DictionaryEntry'
+    'System.Object'
+    'System.ValueType'
+
+[38;2;235;203;139m# child[39m
+
+System.Collections.DictionaryEntry
+System.ValueType
+System.Object
+#>
+[38;2;255;192;203m---------------------------------------------------------------------------------------------------[39m
+
+[38;2;235;203;139m# Default hashtables from literal @{}[39m
+
+System.Collections.Hashtable
+
+[38;2;235;203;139m# Default ordered from literal [ordered]@{}[39m
+
+System.Collections.Specialized.OrderedDictionary
+[38;2;255;0;255m---------------------------------------------------------------------------------------------------[39m
+
+[38;2;235;203;139m# as [pscustomobject][39m
+
+System.Management.Automation.PSCustomObject
+PSCustomObject
