@@ -2,8 +2,7 @@
 function Invoke-Ping {
     param(
         # server / ip
-        [Parameter(Mandatory, Position = 0)]
-        [string]$TargetName,
+        [Parameter(Mandatory, Position = 0)][string]$TargetName,
 
         # optionally lookup
         [switch]$ResolveHost
@@ -13,7 +12,7 @@ function Invoke-Ping {
     [object[]]$PingArgs = @()
 
     $Config = @{
-        Count       = 3
+        Count       = 1
         ResolveHost = $True
     }
     # Conditionally build up command line args
@@ -23,17 +22,20 @@ function Invoke-Ping {
             '-a'
         }
         $PingArgs += @(
-            '-n', $Config.Count
-            $Config.Count
+            if ($Config.Count) {
+                '-n', $Config.Count
+            }
         )
 
         $TargetName
     )
 
     # if PS7
-    $binPing | Join-String -sep ' ' -op 'ping.exe '
+    $PingArgs | Join-String -sep ' ' -op 'ping.exe '
 
     & $binPing @PingArgs
-
-
 }
+
+# Invoke-Ping -TargetName google.com -ResolveHost
+
+# ping -n 1 -a google.com
