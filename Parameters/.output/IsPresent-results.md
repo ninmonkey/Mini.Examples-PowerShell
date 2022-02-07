@@ -1,3 +1,17 @@
+    ## Generated Test Results
+
+    [Source: IsPresent-Compare-switch-parameter.ps1](../IsPresent-Compare-switch-parameter.ps1)
+
+    ```ps1
+    DoIt 'Omit Param'
+    DoIt 'Switch On' -DoStuff
+    DoIt 'Explicit True' -DoStuff:$true
+    DoIt 'Explicit False' -DoStuff:$false
+    DoIt 'Explicit Null' -DoStuff:$null
+    ```
+
+    ## Output
+    '
 | Name | Value | 
 | - | - |
 | Id | 0 |
