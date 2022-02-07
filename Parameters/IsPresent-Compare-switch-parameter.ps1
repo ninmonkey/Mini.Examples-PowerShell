@@ -57,13 +57,13 @@ $RemoveConstantTestNames = @(
 )
 
 $results = $fullDetails | Select-Object -Exclude $RemoveConstantTestNames
-# hr -fg magenta
+hr -fg magenta
 
-# h1 'Removed Tests'
-$fullDetails | s -prop $RemoveConstantTestNames | Format-Table -AutoSize
+h1 'Removed Tests'
+$fullDetails | s -prop $RemoveConstantTestNames | Format-Table -AutoSize -Wrap
 
-# h1 'Tests'
-$results | Format-Table -AutoSize
+h1 'Tests'
+$results | Format-Table -AutoSize -Wrap
 
 
 ## Everything past here generates markdown
@@ -85,6 +85,9 @@ DoIt 'Explicit True' -DoStuff:$true
 DoIt 'Explicit False' -DoStuff:$false
 DoIt 'Explicit Null' -DoStuff:$null
 ```
+
+![screenshot-of-switch-results](Image/IsPresent-Compare-switch-parameter.png)
+
 
 ## Output
 

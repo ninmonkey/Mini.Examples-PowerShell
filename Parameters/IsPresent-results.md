@@ -10,6 +10,9 @@ DoIt 'Explicit False' -DoStuff:$false
 DoIt 'Explicit Null' -DoStuff:$null
 ```
 
+![screenshot-of-switch-results](Image/IsPresent-Compare-switch-parameter.png)
+
+
 ## Output
 
 | Name | Value | 
