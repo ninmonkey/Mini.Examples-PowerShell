@@ -1,0 +1,10 @@
+
+[32;1mId Label          .IsPresent? [bool]DoStuff DoStuff MyInvoke.BoundParams                        PSBoundParameters_str[0m
+[32;1m-- -----          ----------- ------------- ------- --------------------                        ---------------------[0m
+ 0 Omit Param           False         False False   {[Label, Omit Param]}                       @{Label=Omit Param}
+ 1 Switch On             True          True True    {[DoStuff, True], [Label, Switch On]}       @{DoStuff=True;…
+ 2 Explicit True         True          True True    {[DoStuff, True], [Label, Explicit True]}   @{DoStuff=True;…
+ 3 Explicit False       False         False False   {[DoStuff, False], [Label, Explicit False]} @{DoStuff=False;…
+ 4 Explicit Null        False         False False   {[DoStuff, False], [Label, Explicit Null]}  @{DoStuff=False;…
+
+
