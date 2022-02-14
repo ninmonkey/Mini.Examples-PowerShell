@@ -48,7 +48,17 @@ function runOriginalExample {
         h1 'results'
         $strWriter.ToString()
     ) | Write-Information
-    return $strWriter
+
+    $finalText = $strWriter.ToString()
+    $xmlWriter.close()
+    $xmlWriter.dispose()
+
+    # redundant, but used for the demo
+    # [IO.StringWriter] implements IDisposable, but has no reseources to dispose
+    # it is redundant here
+    $strWriter.close()
+    $stWriter.dispose()
+
 }
 [xml]$randomXml = @'
 
