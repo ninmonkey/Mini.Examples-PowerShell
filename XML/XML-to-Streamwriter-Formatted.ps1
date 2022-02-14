@@ -35,8 +35,9 @@ function runOriginalExample {
     @(
         $strWriter ??= [IO.StringWriter]::new()
         $xmlWriter = [XML.XmlTextWriter]::new( $strWriter )
+
         [Xml.XmlTextWriter] | fm -MemberType Constructor
-        $xmlWriter ??= [Xml.XmlTextWriter]::new( $strWriter )
+
         $strWriter; hr; $xmlWriter ; hr;
         $xmlWriter.Formatting = [Xml.Formatting]::Indented
 
@@ -55,16 +56,12 @@ function runOriginalExample {
 
     # redundant, but used for the demo
     # [IO.StringWriter] implements IDisposable, but has no reseources to dispose
-    # it is redundant here
+    # it is redundant h
     $strWriter.close()
     $stWriter.dispose()
 
 }
-[xml]$randomXml = @'
-
-
-
-'@
+[xml]$randomXml = Get-Content (Get-Item -ea stop $PSScriptRoot 'data/bookstore.xml')
 
 [xml]$xmlDoc = [xml]$randomXml
 $splatExample = @{
