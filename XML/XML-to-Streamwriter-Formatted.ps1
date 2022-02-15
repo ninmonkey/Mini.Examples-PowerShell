@@ -28,26 +28,25 @@ function runOriginalExample {
     param(
         # an XML Doc instance
         [Parameter()]
-        [NotNull()]
         [Xml.XmlDocument]$XmlDoc
     )
-    # [xml]$doc = $randomXml
+    # [xml]$xmlDoc = $randomXml
     @(
         $strWriter ??= [IO.StringWriter]::new()
-        $xmlWriter = [XML.XmlTextWriter]::new( $strWriter )
+        $xmlWriter ??= [XML.XmlTextWriter]::new( $strWriter )
 
-        [Xml.XmlTextWriter] | fm -MemberType Constructor
+        # [Xml.XmlTextWriter] | fm -MemberType Constructor
 
-        $strWriter; hr; $xmlWriter ; hr;
+        # $strWriter; hr; $xmlWriter ; hr;
         $xmlWriter.Formatting = [Xml.Formatting]::Indented
 
-        $doc.WriteTo( $xmlWriter )
+        $xmlDoc.WriteTo( $xmlWriter )
         $xmlWriter.Flush()
         $strWriter.Flush()
     ) | Write-Information # or debug/verbose
     @(
-        h1 'results'
-        $strWriter.ToString()
+        # h1 'results'
+        # $strWriter.ToString()
     ) | Write-Information
 
     $finalText = $strWriter.ToString()
@@ -58,19 +57,27 @@ function runOriginalExample {
     # [IO.StringWriter] implements IDisposable, but has no reseources to dispose
     # it is redundant h
     $strWriter.close()
-    $stWriter.dispose()
+    if ( !($null -eq $strWriter)) {
+        $stWriter.dispose()
+    }
+    return $finalText
 
 }
-[xml]$randomXml = Get-Content (Get-Item -ea stop $PSScriptRoot 'data/bookstore.xml')
+# [xml]$randomXml = Get-Content (Get-Item -ea stop $PSScriptRoot 'data/bookstore.xml')
 
-[xml]$xmlDoc = [xml]$randomXml
+# [xml]$xmlDoc = [xml]$randomXml
+
+$content = Get-Content (Get-Item -ea stop (Join-Path $PSScriptRoot 'data/bookstore.xml'))
+[xml]$xmldoc = [xml]$content
+
+
 $splatExample = @{
     Infa    = 'Continue'
     verbose = $True
     Debug   = $false
     XmlDoc  = $XmlDoc
 }
-$resultUodated = runUpdatedExample @splatInfo
+# $resultUodated = runUpdatedExample @splatInfo
 $resultOriginal = runOriginalExample @splatInfo
 
 # hr -fg magenta

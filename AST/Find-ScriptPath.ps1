@@ -26,8 +26,7 @@ function Find-FunctionSourceCode {
     begin {
         try {
             $src = Get-Item -ea stop function:\$FunctionName
-        }
-        catch [System.Management.Automation.CommandNotFoundException] {
+        } catch [System.Management.Automation.CommandNotFoundException] {
             Write-Error "'$FunctionName' not found. Is it a function?"
         }
         # $LineNum =
