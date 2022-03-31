@@ -54,18 +54,25 @@ function Set-Cache {
 
         # Object to Store
         [Alias('Value')]
-        [Parameter(Mandatory, 1, ValueFromPipeline)]
+        [Parameter(Mandatory, Position = 1, ValueFromPipeline)]
         [ValidateNotNull()]
-        [object]$InputObject
+        [object[]]$InputObject
     )
 
     begin {
+        $items = [System.Collections.Generic.List[object]]::new()
     }
     process {
+        $items.AddRange($InputObject)
     }
     end {
-        $script:__cache[$Property] = $InputObject
-        Write-Verbose "cache: set '$Property' = '$InputObject'"
+        $script:__cache[$Property] = $Items
+
+        # "cache: set '$Property' = '$($Items.GetType()'"
+        "cache: set '$Property' = {0}, count {1}" -f @(
+            $Items.GetType().Name
+            $Items.count
+        ) | Write-Verbose
     }
 }
 
