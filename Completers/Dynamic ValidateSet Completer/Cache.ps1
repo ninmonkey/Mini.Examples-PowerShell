@@ -6,11 +6,11 @@ in a real script this can be scoped as a module-level variable
 so it is actually not accessable or visable from the user
 #>
 
-$script:_cache = [hashtable]@{}
+[hashtable]$script:__cache = @{}
 
 class Animal {
-    # example showing validate [Attributes] can be applied to
-    # members, or even sttand alone variables!
+    # validate [Attributes] can be applied to members,
+    # or even stand alone variables!
     [ValidateNotNullOrEmpty()]
     [ValidatePattern('^[a-z]+$')]
     [string]$Name
@@ -19,41 +19,60 @@ class Animal {
     [int]$Age
 }
 
-function _get_validProperty {
+function _get_validCompletions {
     <#
     .synopsis
+        This function is the 'magic'. Valid values change during run time,
+    .description
+        If you were using [ValidateSet()], this generates the values that
+        would have been placed there. But, it's re-evaluated, they're dynamic.
+
         This calculalates which keys to return, which are used for autocomplete
-    .notes
         in a real module this would be a private /internal function
+    .link
+        https://vexx32.github.io/2018/11/29/Dynamic-ValidateSet
     #>
     param()
-    $script:_cache.Keys
+    $script:__cache.Keys
 }
 function Set-Cache {
     <#
     .synopsis
-        User facing function, caches values using  (key, value) pairs
+        User facing function, caches values using  (key = value) pairs
+    .example
+        PS> Set-Cache -Key 'now' -Value (get-date)
+        PS> Get-Date | Set-Cache 'date'
+        PS> Get-Cache date
     #>
     param(
-        # Property Name
+        # Property / Key Name that you are caching under
+        [Alias('Key')]
         [Parameter(Mandatory, Position = 0)]
         [ValidateNotNullOrEmpty()]
         [string]
         $Property,
 
-        # New Value
-        [Parameter(Mandatory, Position = 1)]
+        # Object to Store
+        [Alias('Value')]
+        [Parameter(Mandatory, 1, ValueFromPipeline)]
+        [ValidateNotNull()]
         [object]$InputObject
     )
 
-    $script:_cache[$Property] = $InputObject
+    begin {
+    }
+    process {
+    }
+    end {
+        $script:__cache[$Property] = $InputObject
+        Write-Verbose "cache: set '$Property' = '$InputObject'"
+    }
 }
-
 
 function Get-Cache {
     <#
     .synopsis
-        returns cached value using a key name.
+        returns cached value using a key name. example forcing like a validateset
     .description
         auto completes all valid (existing) key names
 
@@ -67,29 +86,50 @@ function Get-Cache {
 
             Set-PSReadLineKeyHandler -Chord 'Tab' -Function TabCompleteNext
             Set-PSReadLineKeyHandler -Chord 'Ctrl+Spacebar' -Function MenuComplete
+    .example
+        PS> Set-Cache -Key 'now' -Value (get-date)
+        PS> Get-Date | Set-Cache 'date'
+        PS> Get-Cache date
+        PS> Get-Cache <tab>
+
+            # completes 'now', and 'date'
 
     #>
     param(
-        [Parameter(Position = 0)]
-        [ArgumentCompleter(
-            {
-                param($Command, $Parameter, $WordToComplete, $CommandAst, $FakeBoundParams)
-                _get_validProperty
-            }
-        )]
-        [ValidateScript(
-            {
-                $_ -in (_get_validProperty)
-            }
-        )]
+        # If key name is omitted, then print valid key names
+        [Parameter(Position = 0, ValueFromPipeline)]
+        [ArgumentCompleter({
+                param(
+                    $Command, $Parameter, $WordToComplete,
+                    $CommandAst, $FakeBoundParams)
+                _get_validCompletions
+            })]
+        [ValidateScript({
+                if ($NotStrict) {
+                    return $True
+                } # test if toggle works properly
+                $_ -in @(_get_validCompletions)
+            })]
         [string]
-        $Property
-    )
+        $Property,
 
-    if (! $Property ) {
-        _get_validProperty
-        return
+        # list valid keys
+        [switch]$List,
+
+        # don't error on bad key names
+        [switch]$NotStrict
+    )
+    begin {
+    }
+    process {
+        if (! $Property ) {
+            _get_validCompletions
+            return
+        }
+        Write-Verbose "cache: get '$Property'"
+        $script:__cache[$Property]
+    }
+    end {
     }
 
-    $script:_cache[$Property]
 }
