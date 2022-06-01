@@ -1,3 +1,17 @@
+$About = @{
+    Description = 'Setting "DefaultDisplayPropertySet" and "DefaultDisplayProperty" using Update-TypeData'
+    Tags        = @('Update-TypeData', 'TypeData')
+    Source      = ''
+    Links       = @(
+        'https://github.com/StartAutomating/EZOut/blob/master/Add-TypeData.ps1'
+        'https://github.com/PowerShell/PowerShell/blob/master/src/System.Management.Automation/FormatAndOutput/DefaultFormatters/Help_format_ps1xml.cs'
+        'https://docs.microsoft.com/en-us/powershell/module/microsoft.powershell.utility/update-typedata?view=powershell-7.1#example-2--update-types-multiple-times'
+    )
+    # RequiresVersion = '7.0'
+
+
+
+}
 <#
     minimal example of custom type formatting
 
@@ -32,9 +46,10 @@ examples:
 
         Update-TypeData -TypeName "System.DateTime" -DefaultDisplayPropertySet "DateTime, DayOfYear, Quarter"
         Get-Date | Format-List
-
-
 #>
+
+
+
 
 function New-Animal {
     param(

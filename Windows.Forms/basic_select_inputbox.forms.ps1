@@ -6,6 +6,12 @@ About:
 
 source: https://docs.microsoft.com/en-us/powershell/scripting/samples/selecting-items-from-a-list-box?view=powershell-7.3#create-a-list-box-control-and-select-items-from-it
 
+- https://docs.microsoft.com/en-us/powershell/scripting/samples/creating-a-custom-input-box?view=powershell-7.3
+- https://docs.microsoft.com/en-us/powershell/scripting/samples/multiple-selection-list-boxes?view=powershell-7.3
+
+Controls:
+    https://docs.microsoft.com/en-us/dotnet/api/system.windows.forms?view=windowsdesktop-6.0
+
 notes:
     Should anything be Disposed()?
 '@

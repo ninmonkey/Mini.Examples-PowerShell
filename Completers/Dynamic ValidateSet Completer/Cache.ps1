@@ -6,19 +6,9 @@ in a real script this can be scoped as a module-level variable
 so it is actually not accessable or visable from the user
 #>
 
+# finish posting this to the SQL discord for PS5 completers
+
 [hashtable]$script:__cache = @{}
-
-class Animal {
-    # validate [Attributes] can be applied to members,
-    # or even stand alone variables!
-    [ValidateNotNullOrEmpty()]
-    [ValidatePattern('^[a-z]+$')]
-    [string]$Name
-
-    [ValidateRange(0, 99)]
-    [int]$Age
-}
-
 function _get_validCompletions {
     <#
     .synopsis
@@ -93,6 +83,21 @@ function Get-Cache {
 
             Set-PSReadLineKeyHandler -Chord 'Tab' -Function TabCompleteNext
             Set-PSReadLineKeyHandler -Chord 'Ctrl+Spacebar' -Function MenuComplete
+
+    .notes
+        the behavior is:
+
+            Get-Cache -Key 'good'
+                returns value
+
+            Get-Cache -Key 'notExisting'
+                return nothing
+
+            Get-Cache -Key 'notExisting' -Strict
+                raise an error
+
+            Get-Cache -List
+                returns a list of valid keys
     .example
         PS> Set-Cache -Key 'now' -Value (get-date)
         PS> Get-Date | Set-Cache 'date'
@@ -103,7 +108,7 @@ function Get-Cache {
 
     #>
     param(
-        # If key name is omitted, then print valid key names
+        # If key name is omitted, then print valid key names # sql chan?
         [Parameter(Position = 0, ValueFromPipeline)]
         [ArgumentCompleter({
                 param(
@@ -112,9 +117,9 @@ function Get-Cache {
                 _get_validCompletions
             })]
         [ValidateScript({
-                if ($NotStrict) {
+                if (! $Strict) {
                     return $True
-                } # test if toggle works properly
+                }
                 $_ -in @(_get_validCompletions)
             })]
         [string]
@@ -123,8 +128,8 @@ function Get-Cache {
         # list valid keys
         [switch]$List,
 
-        # don't error on bad key names
-        [switch]$NotStrict
+        #  don't error on bad key names
+        [switch]$Strict
     )
     begin {
     }
