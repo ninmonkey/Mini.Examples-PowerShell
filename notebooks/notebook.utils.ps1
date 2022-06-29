@@ -7,6 +7,8 @@
 #     }
 # }
 
+Write-Warning "!! '$PSCommandPath' : need to extract as a module !!"
+
 # 0..4 | unwise -Label 'Int list'
 $Uni = @{
     NullStr = "[`u{2400}]"
@@ -37,39 +39,58 @@ function nb.resolveTypeInfo {
     }
 }
 function nb.resolveModuleInfo {
+    <#
+    .synopsis
+        Resolves names to a [PSModuleInfo]
+    .DESCRIPTION
+        First attempt to get module info with the current imports
+        If that fails, then import the module
+    #>
     # Resolve->ModuleInfo
     [Alias('nb.Resolve->Module')]
-    [OutputType('PSModuleInfo')]
+    [OutputType('Management.Automation.PSModuleInfo')]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
         [object]$InputObject # don't even need by value, it auto coerces
     )
+    begin {
+    }
     process {
         $target = $InputObject
-        if ($Target -is 'PSModuleInfo') {
+        if ($Target -is 'Management.Automation.PSModuleInfo') {
             return $Target
         }
         $Text = $InputObject
         if (($target = Get-Module $text -ea ignore )) {
             return $target
         }
-        Import-Module $InputObject
-        $info =
+        Import-Module $InputObject -Scope Global -
+        | Write-Debug # should it be silentsilent ?
+        # $info =
 
         Get-Module -Name $Target
     }
-    # 'Ninmonkey.Console' | _as_moduleInfo
+    end {
+    }
 }
 
 function _fmt_moduleVersion {
     param(
         [Parameter(Mandatory, ValueFromPipeline, Position = 0)]
-        [PSModuleInfo[]]$ModulesUsed # don't even need by value, it auto coerces
+        [psmoduleinfo[]]$ModulesUsed # don't even need by value, it auto coerces
     )
+    begin {
+        $modulesList = [Collections.Generic.List[object]]::new() # // object
+    }
     process {
-        $ModulesUsed | ForEach-Object {
-            Get-Module $_ | Join-String { $_.Name, $_.Version.ToString() -join ' ' }
+        $modulesList.AddRange( $ModulesUsed )
+    }
+    end {
+        $ModulesList | ForEach-Object {
+            Get-Module $_ | Join-String {
+                $_.Name, $_.Version.ToString() -join ' '
+            }
         } | Join-String -sep ', '
     }
 }
@@ -84,11 +105,20 @@ function nb.ImportModule {
 }
 function nb.ListVersions {
     $ModulesUsed = @('ClassExplorer')
-    'Generated using Pwsh: {0}{1}' -f @( $PSVersionTable.PSVersion.ToString()
-
+    'Generated using Pwsh: {0}' -f @(
+        $PSVersionTable.PSVersion.ToString()
+    )
+    'List Imported Modules: {0}' -f @(
+        Get-Module | _fmt_moduleVersion
     )
 }
-nb.ImportModule 'ClassExplorer'
+# nb.ImportModule 'ClassExplorer'
+nb.ImportModule @(
+    'ClassExplorer'
+    'PowerHTML'
+    # 'ninmonkey.console'
+    # 'dev.nin'
+)
 
 $ec = $ExecutionContext
 $sess = $ExecutionContext.SessionState

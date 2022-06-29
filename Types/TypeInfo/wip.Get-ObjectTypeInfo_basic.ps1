@@ -4,7 +4,7 @@ using namespace System.Collections.Generic
 # most is easily factored out for 5.1
 
 
-function Get-BasicTypeInfo {
+function Get-ObjectTypeInfo {
     <#
     .synopsis
         Tests GetType(), clean and filter output
@@ -16,9 +16,7 @@ function Get-BasicTypeInfo {
             - allow more namespaces
             -
     #>
-    [Alias(
-        'BasicTypeInfo'
-    )]
+    [Alias('TypeInfo', 'WhatType')]
     [CmdletBinding()]
     param(
         [Parameter(Mandatory, Position = 0, ValueFromPipeline, ValueFromPipelineByPropertyName)]
@@ -29,13 +27,12 @@ function Get-BasicTypeInfo {
     }
     process {
         # try this logpoint: it includes colors
-        #   $($InputObject | ShortType | Label 'BasicTypeInfo')
+        #   $($InputObject | ShortType | Label 'WhatType')
         $InputObject.GetType().FullName -replace $regexPrefix, ''
         | Join-String -op '[' -os ']'
     }
 }
 
-<#
 $JoinCsv = @{ Separator = ', ' }
 
 
@@ -47,8 +44,17 @@ $WeakInt = [int]'213.45'
 
 [string]$AlwaysString = 1e9
 
+
+# generics
+$weakList = [List[object]]::new( @(0, 3, 6, 32))
+[List[object]]$AlwaysList = [List[object]]::new()
+
+. {
+    $query = $script:query
+    $x = 3
+}
 $AlwaysDouble, $AlwaysInt, $AlwaysString
-| BasicTypeInfo
+| WhatType
 | Join-String @joinCsv
 
 # See more: 'gcm Utility\Get-ElementName
@@ -56,11 +62,10 @@ $AlwaysInt = 'zabc' # SHould Error because 'No valid conversion path for "Z"'
 $WeakList = 'abc'
 $weakInt = 'abc'
 $AlwaysInt, $WeakList, $WeakInt
-| BasicTypeInfo
+| WhatType
 
-# $numDouble | BasicTypeInfo
+# $numDouble | TypeInfo
 
-# Get-Item . | BasicTypeInfo
+# Get-Item . | TypeInfo
 # [Double]
 # [IO.DirectoryInfo]
-#>

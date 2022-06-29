@@ -48,8 +48,12 @@ $typeList = @(
     'System.IO.FileInfo'
     'System.IO.DirectoryInfo'
     'System.IO.FileSystemInfo'
+    'System.Management.Automation.ScriptBlock'
+    'System.Management.Automation.FunctionInfo'
 ) | Sort-Object -Unique
 
+$typeList = Find-Type *Ast* | ForEach-Object FullName | Sort-Object -Unique
+
 foreach ($name in $typeList) {
-    _exportFormatData $name -Verbose
+    _exportFormatData $name -Verbose -ea Ignore -Debug -infa Continue
 }
