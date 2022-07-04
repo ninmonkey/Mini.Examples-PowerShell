@@ -32,7 +32,7 @@ function nb.resolveTypeInfo {
         if ($InputObject -is 'type') {
             return $InputObject
         }
-        if (($tinfo = $IputObject -as 'type')) {
+        if (($tinfo = $InputObject -as 'type')) {
             return $tinfo
         }
 
