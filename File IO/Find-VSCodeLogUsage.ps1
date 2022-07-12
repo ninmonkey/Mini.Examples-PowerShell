@@ -51,17 +51,19 @@ Update-TypeData -TypeName 'examples.LogSizeSummary' -DefaultDisplayPropertySet @
 $findAllExtensions = Get-ChildItem $Env:UserProfile/.vscode/extensions/ms-vscode.powershell*
 function Reset {
     #reset for another search
-    $script:cache = $Null; $script:cache2 = $Null; 'Cleared.'
+    $script:cache = $Null; $script:cache2 = $Null; $script:cache3 = $Null; 'Cleared: $cache1, $cache2, $cache3'
 }
 $Results = @(
     foreach ($extVersion in $findAllExtensions) {
         _measureLogUsage -Path $extVersion -Label "Only $($extVersion.Name)"
     }
 
-    $cache ??= _measureLogUsage -Path "$env:APPDATA/code" -Label '/AppData/Code'
-    $cache
-    $cache2 ??= _measureLogUsage -Path "$Env:UserProfile/.vscode/extensions" -Label 'All ⅀ $Env:UserProfile/.vscode/extensions'
+    $cache1 ??= _measureLogUsage -Path "$env:APPDATA/code" -Label '/AppData/Code/'
+    $cache1
+    $cache2 ??= _measureLogUsage -Path "$env:APPDATA/code/logs" -Label '/AppData/Code/logs/'
     $cache2
+    $cache3 ??= _measureLogUsage -Path "$Env:UserProfile/.vscode/extensions" -Label 'All ⅀ $Env:UserProfile/.vscode/extensions'
+    $cache3
 ) | Sort-Object Bytes -Descending
 $Results | Format-List Path, Label, Size, LogCount
 $Results | Format-Table Size, Path
