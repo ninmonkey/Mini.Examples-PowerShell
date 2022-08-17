@@ -7,7 +7,7 @@ function EnumerateKinds {
     [OutputType('System.String')]
     param(
         [Parameter(Mandatory)]
-        [ValidateSet('CngAlgorithm', 'HashAlgorithm', 'Text')]
+        [ValidateSet('CngAlgorithm', 'HashAlgorithm', 'Text', 'TextAll')]
         [string]$NameKind
     )
     switch ($NameKind) {
@@ -60,7 +60,13 @@ function Get-StringHash {
         # Text encoding, if not utf8
         [Parameter()]
         [ArgumentCompletions('utf-8', 'Unicode', 'utf-16le', 'ascii')]
+        # [ArgumentCompleter({
+        #         param( $commandName, $parameterName, $wordToComplete, $commandAst, $fakeBoundParameters )
+        #         EnumerateKinds -NameKind TextAll
+        #     })]
         [string]$Encoding = 'utf-8'
+
+
 
     )
 
