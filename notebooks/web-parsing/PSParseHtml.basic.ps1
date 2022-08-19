@@ -1,5 +1,5 @@
-Import-Module PowerHTML
-
+Import-Module PSParseHTML -ea stop
+# Import-Module PowerHTML
 
 
 
@@ -36,12 +36,17 @@ Future:
     //div[@class="head"]
     //div[@class="head"][@id="top"]
 '@
+
+
+Write-Warning 'copied urls but remove the rest of the PowerHTML code'
+
+return
 $Url.Source = $Url.PwshExperimentalFeaturesTable
 
 $Q = $Query = @{} # Save query results for comparison
 H1 "Url: $($Url.Source)"
-$Doc ??= PowerHTML\ConvertFrom-Html -URI $Url.Source
-$rawDoc ??= PowerHTML\ConvertFrom-Html -URI $Url.Source -Raw
+# $Doc ??= PowerHTML\ConvertFrom-Html -URI $Url.Source
+# $rawDoc ??= PowerHTML\ConvertFrom-Html -URI $Url.Source -Raw
 
 H1 '$doc'
 $doc | iot2

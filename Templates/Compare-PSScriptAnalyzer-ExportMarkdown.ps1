@@ -1,3 +1,4 @@
+
 #Requires -Version 7
 
 <#
@@ -30,24 +31,24 @@ $settings = @{
 function New-MarkdownHeader {
     <#
     .synopsis
-        minimal wrapper to export code wrappped in markdown 
+        minimal wrapper to export code wrappped in markdown
     #>
     [CmdletBinding()]
     param(
         # raw text
         [Alias('Text')]
         [Parameter(Mandatory, Position = 0, ValueFromPipeline)]
-        [string]$InputText,        
+        [string]$InputText,
 
         # code fence language
         [Parameter()]
         [uint]$Depth = 2
-        
+
     )
     begin {
         $Template = '{0} {1}'
     }
-    end {        
+    end {
         $Template -f @(
             ('#' * $Depth)
             $InputText
@@ -57,7 +58,7 @@ function New-MarkdownHeader {
 function New-MarkdownCodeFence {
     <#
     .synopsis
-        minimal wrapper to export code wrappped in markdown 
+        minimal wrapper to export code wrappped in markdown
     #>
     [CmdletBinding()]
     param(
@@ -69,7 +70,7 @@ function New-MarkdownCodeFence {
         # code fence language
         [Parameter()]
         [string]$Language
-        
+
     )
     begin {
         $Template = @'
@@ -104,10 +105,10 @@ foreach ($mode in ('IncreaseIndentationAfterEveryPipeline', 'IncreaseIndentation
 
 
 
-    
+
     # $mdDoc += New-MarkdownHeader -InputText "Mode: '$Mode'"
     $mdDoc += Write-Newline 2
-    
+
     $result = $settings | ConvertTo-Json
     $result
     $mdDoc += New-MarkdownCodeFence $result -Language json
