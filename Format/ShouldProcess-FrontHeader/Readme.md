@@ -2,26 +2,38 @@
 [↑ Go Back](./..)
 
 - [Experimenting with custom ShouldProcess output](#experimenting-with-custom-shouldprocess-output)
+- [Objects From `-WhatIf`](#objects-from--whatif)
 - [Main Demo : `Test-ShouldProcessReason`](#main-demo--test-shouldprocessreason)
 - [Minimal Visual ShouldProcess Test](#minimal-visual-shouldprocess-test)
 - [How to Hide default output](#how-to-hide-default-output)
 
 
-
-
-![ShouldProcess Screenshot](ShouldProcess-FrontHeader-SeeminglySci.png)
-
-
-
 ## Experimenting with custom ShouldProcess output
 
-Note that 
 
 ![./.wip/wip.ShouldProcess-WithLotsOfCustomFormatting.ps1](ShouldProcess-WithColor.png)
 
-  - WIP is am experiment preserving the default `-WhatIf` behavior, with a custom formatted message by before it.
+- This is very much a WIP / the code needs cleanup, but it's mostly functional. 
+- I'm experimenting with different types of formatting for `ShouldProcess`. 
+- Some examples use controlled formatting before and inside the default prompts of `-WhatIf` behavior
+- some write to the information stream, view it using `-infa Continue`
 
-I was going to rewrite old code, so there's dead code, etc. 
+## Objects From `-WhatIf`
+
+Cases like copying a nested list of files from one path to another, preserving their relative paths -- cannot be read easily using `-WhatIf` or `-Confirm`
+
+In this case I chose to return objects for `-TestOnly` instead of `-WhatIf` . 
+
+
+```powershell
+| Get-ChildItem $Source -recurse
+| ...
+| Copy-RelativeItemTree -SourceRootDir $source -DestinationRootDir $dest -TestOnly
+```
+
+![returdirs](./img/StructuredUserOutput.png)
+
+
 
 ## Main Demo : `Test-ShouldProcessReason`
 
@@ -61,4 +73,7 @@ if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$
     $InputNames | ForEach-Object { "${ItemString}: $_" }
 }
 ```
+
+
+![ShouldProcess Screenshot](ShouldProcess-FrontHeader-SeeminglySci.png)
 
