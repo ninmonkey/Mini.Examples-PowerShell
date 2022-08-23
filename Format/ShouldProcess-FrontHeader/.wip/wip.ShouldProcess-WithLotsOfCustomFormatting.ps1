@@ -1,75 +1,6 @@
+. (Get-Item $PSScriptRoot './ShouldProcess.Utils.ps1')
 
-function toCsv {
-    # Normally I recommend not using '$Input', because there's so many edge
-    # cases and quirks, but in this case it's okay
-    $Input | Join-String -sep ', '
-}
-function toList {
-    $Input | Join-String -sep "`n- " -op "`n- "
-}
-function Test-ShouldProcessWild {
-    <#
-        Is this silly? Yes.Is it excessive use of pipelines?  Probably.
-    #>
-    [cmdletbinding(SupportsShouldProcess, PositionalBinding = $false)]
-    param(
-        #
-        [ValidateSet('List', 'Csv')]
-        [Parameter()]$OutputFormat = 'List',
-
-        [switch]$ShortNames
-    )
-    process {
-
-    }
-}
-
-function renderShouldProcess {
-    <#
-    .SYNOPSIS
-        render component only
-    #>
-    [cmdletbinding()]
-    param(
-        # files
-        [Parameter(Position = 0)]
-        [object[]]$InputObject,
-
-        # text formt mode
-        [ValidateSet('List', 'Csv')]
-        [Parameter(Mandatory, position = 1)]
-        $OutputFormat = 'List'
-        # # do not use full names
-        # [switch]$ShortNames
-    )
-
-    switch ($OutputFormat) {
-        'List' { $InputObject | Sort-Object | toList }
-        'Csv' { $InputObject | Sort-Object | toCsv }
-        default { $InputObject | Sort-Object }
-    }
-    # $base = Get-Item '~'
-    # Get-ChildItem '~' -Depth 1 -File
-    # | Get-Random -Count 20
-    # | Ninmonkey.Console\ConvertTo-RelativePath -BasePath
-    # | UL
-}
-function _randFiles {
-    param( [int]$Count = 10 )
-    Get-ChildItem -Path '~' -Depth 1 -File | Get-Random -Count $Count
-}
-Label 'Mode: ' 'Csv Full'
-renderShouldProcess (_randFiles) Csv
-Label 'Mode: ' 'Csv Short'
-renderShouldProcess (_randFiles).Name Csv
-Label 'Mode: ' 'List Full'
-renderShouldProcess (_randFiles) List
-Label 'Mode: ' 'List Short'
-renderShouldProcess (_randFiles).Name List
-
-
-
-return
+Write-Warning 'This doesn''t currently run, I''m it is mid rewrite'
 
 function Test-ShouldProcessWild_old {
     <#
@@ -129,6 +60,7 @@ function Test-ShouldProcessWild_old {
 
         }
 
+        # Note: I forget why, there probably was one subcase that it mattered
         $null = $PSCmdlet.ShouldProcess(
             $Desc, $Warning, $Caption
         )

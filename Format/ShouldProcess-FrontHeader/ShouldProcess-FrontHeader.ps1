@@ -1,7 +1,4 @@
-﻿<#
-from: <https://github.com/SeeminglyScience>
-
-#>
+﻿<# from: <https://github.com/SeeminglyScience> #>
 
 function Test-ShouldProcess {
     [cmdletbinding(SupportsShouldProcess, PositionalBinding = $false)]
