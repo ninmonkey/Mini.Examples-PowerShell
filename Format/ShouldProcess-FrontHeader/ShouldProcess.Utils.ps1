@@ -8,17 +8,44 @@ function toList {
     $Input | Join-String -sep "`n- " -op "`n- "
 }
 
-function h1 { "`n`n#### $args  `n`n" }
+function h1 {
+    NL 2
+    "`n`n#### $args  `n`n"
+    NL 2
+    # "`n`n#### $args  `n`n"
+}
 function label { param($a, $b) "$a : $b" }
 
 function Fg {
+    # emit ansii escape for FG colors
     [OutputType('System.String')]
     param( $InputObject )
     return $PSStyle.Foreground.FromRgb( $InputObject )
 }
+function Bg {
+    # emit ansii escape for BG colors
+    [OutputType('System.String')]
+    param( $InputObject )
+    return $PSStyle.Background.FromRgb( $InputObject )
+}
+function NL {
+    param([int]$Count = 1 )
+    # N-number of newlines
+    "`n" * $Count -join ''
+}
+
+function P {
+    # Paragraph
+    param($ParagraphContent)
+    NL 2
+    $ParagraphContent
+    NL 2
+}
+
 function wrapFg {
-    param($InputText, $Color)
-    $Color, $InputText, $Color.Reset -join ''
+    param($InputText, $ColorFG, $ColorBG)
+    $ColorBG ??= ''
+    $ColorFg, $ColorBg, $InputText, $Color.Reset -join ''
 }
 
 

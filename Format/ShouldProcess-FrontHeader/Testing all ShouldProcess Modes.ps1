@@ -8,13 +8,31 @@ $Color = @{
     TargetName    = Fg '#c87c4f'   # red-ish
     OperationName = Fg '#6eabdd'   # blue-ish
     MessageText   = Fg '#4cd189' # tan-ish
-    ItemText      = Fg '#d362a2'
+    ItemText      = Fg '#d362a2'  # '
+    BGTeal        = Bg '#2d6f68'
+    FGBright      = Fg '#c9e3e3'
+    WarningYellow = Fg '#f4f429'
     Reset         = $PSStyle.Reset
 }
 
 $TestAll = $true # toggle testing every possibility
 $ItemLimit = 2
 
+@'
+
+Note:
+    - use {0}for additional output
+    - this is a wip -- I know it's messy
+
+
+try:
+
+    Test-ShouldProcessReason 4
+    Test-ShouldProcessReason 4 -Infa Continue
+'@ -f @(
+    $COlor.BGTeal, '-Infa Continue ' , $Color.WarningYellow -join ''
+
+) | Write-Warning
 
 function Test-ShouldProcessReason {
     <#
@@ -44,40 +62,103 @@ function Test-ShouldProcessReason {
     $OperationName = wrapFg 'Operation' $Color.OperationName
     $MessageString = wrapFg 'Message' $Color.MessageText
     $ItemString = wrapFg "Item: $CurItem" $Color.ItemText
+    $InvokeString = @(
+        $Color.FGBright, $Color.BGTeal -join ''
+    )
+
+    NL 4
 
 
     switch ($OutputFormat) {
         1 {
             H1 "OutFormat: '$OutputFormat' , Target: '$TargetName'"
+            | Write-Information
 
             $InputNames | ForEach-Object {
                 $CurItem = $_
 
                 # wrapFg "Item: $CurItem" $Color.ItemText
+                @'
+
+Invocation:
+    $PSCmdlet.ShouldProcess( $TargetName )
+
+'@
+                | Join-String -op $Color.BGTeal -os $Color.Reset
+                | Write-Information
+
                 if ($PSCmdlet.ShouldProcess( $TargetName )) {
-                    "`n${ItemString}: $CurItem"
-                    "Execute item: $MessageString, $TargetName, $OperationName" | Write-Verbose
+                    @(
+                        NL 2
+                        "Invoke 🚀${ItemString} ${curItem} => {$TargetName}"
+                    ) -join ''
+                    # ${ItemString}: $CurItem"
+                    # # "Execute item: $MessageString, $TargetName, $OperationName" | Write-Verbose
                 }
             }
             break
         }
-        default { throw "ShouldNeverReachException: Mode = '$OutputFormat'" }
+        default {
+            throw "ShouldNeverReachException: Mode = '$OutputFormat'"
+        }
         4 {
+
+            @'
+
+Invocation:
+    $PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)
+        with [ShouldProcessReason]::WhatIf
+
+'@
+            | Join-String -op $Color.BGTeal -os $Color.Reset
+            | Write-Information
+
+
             $Reason = [System.Management.Automation.ShouldProcessReason]::WhatIf
-            "$OutputFormat = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
-            if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
-                # "Execute Item: `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
-                $InputNames | ForEach-Object { "${ItemString}: $_" }
+
+            $InputNames | ForEach-Object {
+
+
+
+                "${ItemString}: $_ ?"
+                if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
+                    @(
+                        # NL 2
+                        # "Invoke 🚀${ItemString} ${curItem} => {$TargetName}"
+                        "Invoke 🚀${ItemString} ${curItem} => Op: $OperationName => {$TargetName}"
+                        "`n`t"
+                        "Message: ${MessageString}"
+                    ) -join ''
+                }
             }
+
             break
         }
         5 {
+            @'
+
+Invocation:
+    $PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)
+        with [ShouldProcessReason]::None
+
+'@
+            | Join-String -op $Color.BGTeal -os $Color.Reset
+            | Write-Information
+
             # $Reason = [System.Management.Automation.ShouldProcessReason]::WhatIf
             $Reason = [System.Management.Automation.ShouldProcessReason]::None
-            "$OutputFormat = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
             if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
                 # "Execute Item: `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
-                $InputNames | ForEach-Object { "${ItemString}: $_" }
+                $InputNames | ForEach-Object {
+                    $curItem = $_
+                    @(
+                        NL 2
+                        "Invoke 🚀${ItemString} ${curItem} => Op: $OperationName => {$TargetName}"
+                        "`n`t"
+                        "Message: ${MessageString}"
+
+                    ) -join ''
+                }
             }
             break
         }
@@ -101,14 +182,15 @@ function Test-ShouldProcessReason {
 
         2 {
             # copy of 2
-            H1 "$OutputFormat = `$TargetName, `$OperationName"
-            ''
+            # H1 "$OutputFormat = `$TargetName, `$OperationName"
+            # ''
             $InputNames | ForEach-Object {
                 $CurItem = $_
                 "Item: $CurItem" | Write-Debug
                 if ($PSCmdlet.ShouldProcess( $TargetName , $OperationName)) {
                     "`nItem: $CurItem"
                     "Execute item: $MessageString, $TargetName, $OperationName" | Write-Verbose
+                    "Execute item: $MessageString, $TargetName, $OperationName" | Write-Information
                 }
             }
             break
@@ -132,6 +214,7 @@ function Test-ShouldProcessReason {
                 if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName)) {
                     "`nItem: $CurItem"
                     "Execute item: $MessageString, $TargetName, $OperationName" | Write-Verbose
+                    "Execute item: $MessageString, $TargetName, $OperationName" | Write-Information
                 }
             }
             break
@@ -141,6 +224,7 @@ function Test-ShouldProcessReason {
     $PSStyle.Reset
 
 }
+return
 Test-ShouldProcessReason 5
 return
 if ($TestAll) {
