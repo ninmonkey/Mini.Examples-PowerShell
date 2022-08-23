@@ -11,6 +11,16 @@ function toList {
 function h1 { "`n`n#### $args  `n`n" }
 function label { param($a, $b) "$a : $b" }
 
+function Fg {
+    [OutputType('System.String')]
+    param( $InputObject )
+    return $PSStyle.Foreground.FromRgb( $InputObject )
+}
+function wrapFg {
+    param($InputText, $Color)
+    $Color, $InputText, $Color.Reset -join ''
+}
+
 
 function Format-ShouldProcessSummary {
     <#
