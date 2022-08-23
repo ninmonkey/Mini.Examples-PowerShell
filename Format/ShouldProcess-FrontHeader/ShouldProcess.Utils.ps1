@@ -8,6 +8,10 @@ function toList {
     $Input | Join-String -sep "`n- " -op "`n- "
 }
 
+function h1 { "`n`n#### $args  `n`n" }
+function label { param($a, $b) "$a : $b" }
+
+
 function Format-ShouldProcessSummary {
     <#
     .SYNOPSIS

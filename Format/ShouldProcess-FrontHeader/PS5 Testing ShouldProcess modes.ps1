@@ -1,4 +1,4 @@
-﻿
+
 $TargetName = [string](New-Text 'Target' -fore red)
 $OperationName = [string](New-Text 'Operation' -fore blue)
 $MessageString = [string](New-Text 'Message' -fore green)
@@ -8,10 +8,22 @@ $ItemLimit = 1
 function h1 { "`n`n#### $args  `n`n" }
 function label { param($a, $b) "$a : $b" }
 
+
+function toCsv {
+    # Normally I recommend not using '$Input', because there's so many edge
+    # cases and quirks, but in this case it's okay
+    $Input | Join-String -sep ', '
+}
+function toList {
+    $Input | Join-String -sep "`n- " -op "`n- "
+}
+
+Write-Warning 'very old code, :P'
 function Test-ShouldProcessReason {
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'high')]
     param (
         [Parameter(Position = 0)]
+        [ArgumentCompletions(0, 1, 2, 3, 4, 5)]
         # [ValidateRange(1, 4)]
         [int]$ArgCount = 3
     )
@@ -90,7 +102,16 @@ function Test-ShouldProcessReason {
 
         4 {
             $Reason = [System.Management.Automation.ShouldProcessReason]::WhatIf
-            $reason = ''
+            "$ArgCount = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
+            if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
+                # "Execute Item: `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
+                $InputNames | ForEach-Object { "Item: $_" }
+            }
+            break
+        }
+        5 {
+            # $Reason = [System.Management.Automation.ShouldProcessReason]::WhatIf
+            $Reason = [System.Management.Automation.ShouldProcessReason]::None
             "$ArgCount = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
             if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
                 # "Execute Item: `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"

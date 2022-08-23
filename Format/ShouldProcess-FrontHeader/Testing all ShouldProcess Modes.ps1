@@ -1,76 +1,63 @@
-﻿
-$TargetName = [string](New-Text 'Target' -fore red)
-$OperationName = [string](New-Text 'Operation' -fore blue)
-$MessageString = [string](New-Text 'Message' -fore green)
+﻿#Requires -Version 7
+
+. (Get-Item -ea stop (Join-Path $PSScriptRoot './ShouldProcess.Utils.ps1')) | Out-Null
+
+<# Future: strip colors if $ENV:NO_COLOR has any valey #>
+function Fg {
+    [OutputType('System.String')]
+    param( $InputObject )
+    return $PSStyle.Foreground.FromRgb( $InputObject )
+}
+function wrapFg {
+    param($InputText, $Color)
+    $Color, $InputText, $Color.Clear() -join ''
+}
+
+$Color = @{
+    TargetName    = Fg '#c87c4f'   # red-ish
+    OperationName = Fg '#6eabdd'   # blue-ish
+    MessageText   = Fg '#4cd189' # tan-ish
+    Reset         = $PSStyle.Reset
+}
 
 $TestAll = $true # toggle testing every possibility
 $ItemLimit = 1
-function h1 { "`n`n#### $args  `n`n" }
-function label { param($a, $b) "$a : $b" }
-
-
-function toCsv {
-    # Normally I recommend not using '$Input', because there's so many edge
-    # cases and quirks, but in this case it's okay
-    $Input | Join-String -sep ', '
-}
-function toList {
-    $Input | Join-String -sep "`n- " -op "`n- "
-}
-function Test-ShouldProcessWild {
-    <#
-        Is this silly? Yes.Is it excessive use of pipelines?  Probably.
-    #>
-    [cmdletbinding(SupportsShouldProcess, PositionalBinding = $false)]
-    param(
-        #
-        [ValidateSet('List', 'Csv')]
-        [Parameter()]$OutputFormat = 'List',
-
-        [switch]$ShortNames
-    )
-    process {
-
-    }
-}
 
 
 function Test-ShouldProcessReason {
+    <#
+    .synopsis
+        visually test many variations of function invokes
+    .notes
+        WhatIf, and ShouldContinue greatly vary depending on which host
+        you are using ( that's why I w wrote this )
+
+        future:
+            - Disable color if $ENV:NO_COLOR has any value
+    #>
     [CmdletBinding(SupportsShouldProcess, ConfirmImpact = 'high')]
     param (
+
+        # Choose which mode to test
+        # [ValidateRange(1, 4)]
         [Parameter(Position = 0)]
         [ArgumentCompletions(0, 1, 2, 3, 4, 5)]
-        # [ValidateRange(1, 4)]
-        [int]$ArgCount = 3
+        [int]$OutputFormat = 3
     )
 
     $SampleNames = 'dog.png', 'cat.jpg', 'reptile.png'
     $InputNames = $SampleNames | Select-Object -First $ItemLimit
-    switch ($ArgCount) {
-        # 1 {
-        #     "$ArgCount = `$TargetName"
-        #     if ($PSCmdlet.ShouldProcess( $TargetName )) {
-        #         "Execute item: $TargetName"
-        #         $InputNames | ForEach-Object { "Item: $_" }
-        #     }
-        #     break
-        # }
-        # 2 {
-        #     "$ArgCount = `$TargetName, `$OperationName"
-        #     if ($PSCmdlet.ShouldProcess( $TargetName , $OperationName)) {
-
-        #         # "Execute item: $TargetName, $OperationName"
-        #         $InputNames | ForEach-Object { "Item: $_" }
-        #     }
-        #     break
-        # }
+    $TargetName = wrapFg 'Some Target' $Color.TargetName
+    $OperationName = wrapFg 'Operation' $Color.OperationName
+    $MessageString = wrapFg 'Message' $Color.MessageText
+    # $ 'Target Foo'
+    switch ($OutputFormat) {
         1 {
-            # copy of 1
-            H1 "$ArgCount = `$TargetName"
-            ''
+            H1 "OutFormat: '$OutputFormat' , Target: '$TargetName'"
+
             $InputNames | ForEach-Object {
                 $CurItem = $_
-                "Item: $CurItem" | Write-Debug
+                "Item: $CurItem" | Write-Warning
                 if ($PSCmdlet.ShouldProcess( $TargetName )) {
                     "`nItem: $CurItem"
                     "Execute item: $MessageString, $TargetName, $OperationName" | Write-Verbose
@@ -78,9 +65,28 @@ function Test-ShouldProcessReason {
             }
             break
         }
+        default { throw "ShouldNeverReachException: Mode = '$OutputFormat'" }
+        # 1 {
+        #     "$OutputFormat = `$TargetName"
+        #     if ($PSCmdlet.ShouldProcess( $TargetName )) {
+        #         "Execute item: $TargetName"
+        #         $InputNames | ForEach-Object { "Item: $_" }
+        #     }
+        #     break
+        # }
+        # 2 {
+        #     "$OutputFormat = `$TargetName, `$OperationName"
+        #     if ($PSCmdlet.ShouldProcess( $TargetName , $OperationName)) {
+
+        #         # "Execute item: $TargetName, $OperationName"
+        #         $InputNames | ForEach-Object { "Item: $_" }
+        #     }
+        #     break
+        # }
+
         2 {
             # copy of 2
-            H1 "$ArgCount = `$TargetName, `$OperationName"
+            H1 "$OutputFormat = `$TargetName, `$OperationName"
             ''
             $InputNames | ForEach-Object {
                 $CurItem = $_
@@ -93,7 +99,7 @@ function Test-ShouldProcessReason {
             break
         }
         # 3 {
-        #     "$ArgCount = `$MessageString `$TargetName, `$OperationName"
+        #     "$OutputFormat = `$MessageString `$TargetName, `$OperationName"
         #     if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName)) {
         #         # "Execute item: $MessageString, $TargetName, $OperationName"
         #         $InputNames | ForEach-Object { "Item: $_" }
@@ -103,7 +109,7 @@ function Test-ShouldProcessReason {
 
         3 {
             # copy of 3
-            H1 "$ArgCount = `$MessageString `$TargetName, `$OperationName"
+            H1 "$OutputFormat = `$MessageString `$TargetName, `$OperationName"
             ''
             $InputNames | ForEach-Object {
                 $CurItem = $_
@@ -118,7 +124,7 @@ function Test-ShouldProcessReason {
 
         4 {
             $Reason = [System.Management.Automation.ShouldProcessReason]::WhatIf
-            "$ArgCount = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
+            "$OutputFormat = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
             if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
                 # "Execute Item: `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
                 $InputNames | ForEach-Object { "Item: $_" }
@@ -128,18 +134,22 @@ function Test-ShouldProcessReason {
         5 {
             # $Reason = [System.Management.Automation.ShouldProcessReason]::WhatIf
             $Reason = [System.Management.Automation.ShouldProcessReason]::None
-            "$ArgCount = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
+            "$OutputFormat = `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
             if ($PSCmdlet.ShouldProcess($MessageString, $TargetName , $OperationName, [ref]$reason)) {
                 # "Execute Item: `$MessageString `$TargetName, `$OperationName, [ref]`$Reason"
                 $InputNames | ForEach-Object { "Item: $_" }
             }
             break
         }
-        default { throw 'ShouldNeverReachException' }
+
 
     }
 
 }
+h1 'done'
+
+
+return
 "`n`n"
 $ItemLimit = 3
 if ($true -and $TestAll) {
