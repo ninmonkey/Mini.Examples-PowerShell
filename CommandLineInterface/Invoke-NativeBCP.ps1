@@ -1,18 +1,22 @@
-# using Namespace System.Collections.Generic
-
 <#
 Note:
     This pattern runs on WinPS5.1 if you delete the lines:
+    
          [ArgumentCompletionsLine()]
 
-    Find->Replacing with this regex will do that for you
+    VS Code with Find->Replace will do that for you with this regx
 
         Find: ^(.*argumentcompletions)
         Replace: # $1
+
+About:
+    
+    This is an example how to use any native command
+
+    The original command was: bcp prodcopy.dbo.vw_pt_mstr out C:\temp\vw_pt_mstr.txt -c -S localhost -T -t\t -r\n
 #>
 
-# Is this the right syntax?, if yes
-# bcp prodcopy.dbo.vw_pt_mstr out C:\temp\vw_pt_mstr.txt -c -S localhost -T -t\t -r\n
+
 function previewCommand {
     param( $CommandArgs )
     @(
@@ -44,7 +48,8 @@ function Invoke-BcpStatic {
         '-c', '-S', 'localhost',
         '-T', '-t\t', '-r\n'
     )
-    previewCommand $bcpArgs
+    previewCommand $bcpArgs 
+    & $BinBcp @BcpArgs
     return
 }
 
@@ -62,8 +67,8 @@ function DoubleQuote {
         pushd 'C:\nin_temp\space paths'
 
         # When files exist
-        PS> Quote 'more spaced filepaths\current.log'
-            Quote 'more spaced filepaths\current.log' -Raw
+        PS> QuoteIt 'more spaced filepaths\current.log'
+            QuoteIt 'more spaced filepaths\current.log' -Raw
 
             "C:\nin_temp\space paths\more spaced filepaths\current.log"
             "more spaced filepaths\current.log"
@@ -71,8 +76,8 @@ function DoubleQuote {
     .EXAMPLE
 
         # When files do not exist
-        PS> Quote 'fake filepath\does\not\exist.log'
-            Quote 'fake filepath\does\not\exist.log'-Raw
+        PS> QuoteIt 'fake filepath\does\not\exist.log'
+            QuoteIt 'fake filepath\does\not\exist.log'-Raw
 
             "fake filepath\does\not\exist.log"
             "fake filepath\does\not\exist.log"
@@ -97,30 +102,44 @@ function Invoke-Bcp {
     <#
     .SYNOPSIS
         invokes Bcp with user args
-    .NOTES
-    docs: <https://learn.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver16#c>
 
-    for BCP docs, run:
-
-        > BCP /?
-
-    bcp.exe {dbtable | query} {in | out | queryout | format} datafile
-        [-m maxerrors]            [-f formatfile]          [-e errfile]
-        [-F firstrow]             [-L lastrow]             [-b batchsize]
-        [-n native type]          [-c character type]      [-w wide character type]
-        [-N keep non-text native] [-V file format version] [-q quoted identifier]
-        [-C code page specifier]  [-t field terminator]    [-r row terminator]
-        [-i inputfile]            [-o outfile]             [-a packetsize]
-        [-S server name]          [-U username]            [-P password]
-        [-T trusted connection]   [-v version]             [-R regional enable]
-        [-k keep null values]     [-E keep identity values][-G Azure Active Directory Authentication]
-        [-h "load hints"]         [-x generate xml format file]
-        [-d database name]        [-K application intent]  [-l login timeout]
+    .description
+        things to notice
+        - you can render the output using -WhatIf 
+        - GCM -CommandType Application: means a new alias or function
+            named 'Bcp' doesn't accidentally "override" the native command
+        - Gcm -ea Stop: means if the command isn't found, exit immediately.
+            This simplifies error checking in your code (You can rely on the fact it exists)            
+        - auto-doublequoting some arguments is important, like filepaths with spaces
+        - auto-converts real filepaths like 'foo/main.log' to their absolute fullnames before passing to the command
+        - autocomplete suggestions for a bunch of commands.
+            It's using ArgumentCompletions because its like [ValidateSet], except, they are optional. 
+            The user is free to ignore them and use any values they want
+            they require Pwsh 6+. Removing them does not break functionality
+            
     .example
         Invoke-Bcp -Verbose -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c '?' -ServerName localhost -TrustedConnection -t \t -RowTerminator \r
     .link
         https://learn.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver16#c
+    .NOTES    
+    docs: <https://learn.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver16#c>
+    
+    for BCP docs, run:
 
+        > BCP /?
+
+        bcp.exe {dbtable | query} {in | out | queryout | format} datafile
+            [-m maxerrors]            [-f formatfile]          [-e errfile]
+            [-F firstrow]             [-L lastrow]             [-b batchsize]
+            [-n native type]          [-c character type]      [-w wide character type]
+            [-N keep non-text native] [-V file format version] [-q quoted identifier]
+            [-C code page specifier]  [-t field terminator]    [-r row terminator]
+            [-i inputfile]            [-o outfile]             [-a packetsize]
+            [-S server name]          [-U username]            [-P password]
+            [-T trusted connection]   [-v version]             [-R regional enable]
+            [-k keep null values]     [-E keep identity values][-G Azure Active Directory Authentication]
+            [-h "load hints"]         [-x generate xml format file]
+            [-d database name]        [-K application intent]  [-l login timeout]
     #>
     [CmdletBinding()]
     param(
@@ -209,10 +228,6 @@ function Invoke-Bcp {
         }
 
     )
-    # previewCommand $bcpArgs
-    # 'bcp "{0}"' -f @(
-    #     $DTableOrQuery
-    # )
     if($WhatIf) {
         previewCommand $bcpArgs
         return
@@ -221,14 +236,9 @@ function Invoke-Bcp {
     previewCommand $bcpArgs | Write-Verbose
     & $binBcp @BinArgs
     return
-
 }
 
-# validate output
-# Invoke-Bcp -Verbose -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c -ServerName localhost -TrustedConnection -t \t -RowTerminator \r |
-#   Join-String |
-#   Should -BeLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -c -t\t -r\r*'
-
+# validate output if pester is enabled 
 if(Get-Module Pester -ea ignore) {
-Invoke-Bcp -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c -ServerName localhost -TrustedConnection -t \t -RowTerminator \r | Join-String | Should -beLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -t\t -r\r*' -Because 'manually crafted args example'
+    Invoke-Bcp -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c -ServerName localhost -TrustedConnection -t \t -RowTerminator \r | Join-String | Should -beLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -t\t -r\r*' -Because 'manually crafted args example'
 }
