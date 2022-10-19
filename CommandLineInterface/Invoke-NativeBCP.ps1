@@ -1,7 +1,7 @@
 <#
 Note:
     This pattern runs on WinPS5.1 if you delete the lines:
-    
+
          [ArgumentCompletionsLine()]
 
     VS Code with Find->Replace will do that for you with this regx
@@ -10,7 +10,7 @@ Note:
         Replace: # $1
 
 About:
-    
+
     This is an example how to use any native command
 
     The original command was: bcp prodcopy.dbo.vw_pt_mstr out C:\temp\vw_pt_mstr.txt -c -S localhost -T -t\t -r\n
@@ -48,7 +48,7 @@ function Invoke-BcpStatic {
         '-c', '-S', 'localhost',
         '-T', '-t\t', '-r\n'
     )
-    previewCommand $bcpArgs 
+    previewCommand $bcpArgs
     & $BinBcp @BcpArgs
     return
 }
@@ -105,25 +105,25 @@ function Invoke-Bcp {
 
     .description
         things to notice
-        - you can render the output using -WhatIf 
+        - you can render the output using -WhatIf
         - GCM -CommandType Application: means a new alias or function
             named 'Bcp' doesn't accidentally "override" the native command
         - Gcm -ea Stop: means if the command isn't found, exit immediately.
-            This simplifies error checking in your code (You can rely on the fact it exists)            
+            This simplifies error checking in your code (You can rely on the fact it exists)
         - auto-doublequoting some arguments is important, like filepaths with spaces
         - auto-converts real filepaths like 'foo/main.log' to their absolute fullnames before passing to the command
         - autocomplete suggestions for a bunch of commands.
-            It's using ArgumentCompletions because its like [ValidateSet], except, they are optional. 
+            It's using ArgumentCompletions because its like [ValidateSet], except, they are optional.
             The user is free to ignore them and use any values they want
             they require Pwsh 6+. Removing them does not break functionality
-            
+
     .example
         Invoke-Bcp -Verbose -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c '?' -ServerName localhost -TrustedConnection -t \t -RowTerminator \r
     .link
         https://learn.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver16#c
-    .NOTES    
+    .NOTES
     docs: <https://learn.microsoft.com/en-us/sql/tools/bcp-utility?view=sql-server-ver16#c>
-    
+
     for BCP docs, run:
 
         > BCP /?
@@ -238,7 +238,7 @@ function Invoke-Bcp {
     return
 }
 
-# validate output if pester is enabled 
+# validate output if pester is enabled
 if(Get-Module Pester -ea ignore) {
     Invoke-Bcp -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c -ServerName localhost -TrustedConnection -t \t -RowTerminator \r | Join-String | Should -beLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -t\t -r\r*' -Because 'manually crafted args example'
 }

@@ -38,7 +38,7 @@ function ConvertTo-RelativePath {
             [object]$Item
             [object]$BaseDir
         }
-        [pscustomobject]@{
+        [RelativePathRecord]@{
             InputObject = $Item
             RelPath = [System.IO.Path]::GetRelativePath(
                 $baseDir.FullName, $Item.FullName )
@@ -53,7 +53,7 @@ function ConvertTo-RelativePath {
     ls .. | select -first 3
     ls .  | select -first 3
     ls  -Depth 3 | Get-random -count 4
-) | ConvertTo-RelativePath -BaseDir (gi .) | fl
+) | ConvertTo-RelativePath -BaseDir (gi .) -ov 'query' | fl
 
 if($false) {
     {        # related from jaykul
