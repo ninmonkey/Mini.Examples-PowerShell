@@ -2,10 +2,13 @@
 
 <#
 Note:
-    everything should be PS5.1 compatible if you delete this attribute from parameters
-    it is optional
-        "ArgumentCompletions()"
+    This pattern runs on WinPS5.1 if you delete the lines:
+         [ArgumentCompletionsLine()]
 
+    Find->Replacing with this regex will do that for you
+
+        Find: ^(.*argumentcompletions)
+        Replace: # $1
 #>
 
 # Is this the right syntax?, if yes
@@ -227,6 +230,5 @@ function Invoke-Bcp {
 #   Should -BeLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -c -t\t -r\r*'
 
 if(Get-Module Pester -ea ignore) {
-Invoke-Bcp -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c -ServerName localhost -TrustedConnection -t \t -RowTerminator \r | Join-String
-    | Should -beLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -t\t -r\r*' -Because 'manually crafted args example'
+Invoke-Bcp -WhatIf -DTableOrQuery prodcopy.dbo.vw_pt_mstr -Mode out -DataFile C:\temp\vw_pt_mstr.txt -c -ServerName localhost -TrustedConnection -t \t -RowTerminator \r | Join-String | Should -beLike '*bcp prodcopy.dbo.vw_pt_mstr out "C:\temp\vw_pt_mstr.txt" -c -S localhost -T -t\t -r\r*' -Because 'manually crafted args example'
 }
