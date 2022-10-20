@@ -5,9 +5,13 @@ function ConvertTo-RelativePath {
     .synopsis
         Converts a path relative to another
     .notes
+        warning: the docs for [IO.Path]::GetRelativePath say that      
+            > Paths are resolved by calling the GetFullPath method before calculating the difference
+        which calculates abs() paths, using the dotnet CWD not Pwsh CWD
+    
         currently, assumes both params are vailid path names
         future: use [IO.<File|Directory>Info] types
-            or regular stringss, using split on paths as strings
+            or regular stringss, using split on paths as strings                      
     .EXAMPLE
         Pwsh>
         @(
