@@ -8,9 +8,8 @@ function ConvertTo-RelativePath {
         warning: the docs for [IO.Path]::GetRelativePath say that      
             > Paths are resolved by calling the GetFullPath method before calculating the difference
         which calculates abs() paths, using the dotnet CWD not Pwsh CWD.
-        It does't seem to break though. maybe it can't when using items.
-    
-        currently, assumes both params are vailid path names
+        
+        currently, assumes both params can evaluate to valid path names
         future: use [IO.<File|Directory>Info] types
             or regular stringss, using split on paths as strings                      
     .EXAMPLE
