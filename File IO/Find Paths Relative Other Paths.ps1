@@ -7,7 +7,8 @@ function ConvertTo-RelativePath {
     .notes
         warning: the docs for [IO.Path]::GetRelativePath say that      
             > Paths are resolved by calling the GetFullPath method before calculating the difference
-        which calculates abs() paths, using the dotnet CWD not Pwsh CWD
+        which calculates abs() paths, using the dotnet CWD not Pwsh CWD.
+        It does't seem to break though. maybe it can't when using items.
     
         currently, assumes both params are vailid path names
         future: use [IO.<File|Directory>Info] types
@@ -51,6 +52,13 @@ function ConvertTo-RelativePath {
         }
     }
 }
+
+Get-ChildItem Depth 3
+| select -First 100
+| Fpreach-Object {
+    [IO.Path]::GetRelativePath( (gi ~), $_.FullName) 
+}
+
 
 
 @(
