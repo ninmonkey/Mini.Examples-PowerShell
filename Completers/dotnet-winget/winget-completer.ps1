@@ -1,5 +1,12 @@
-# source: https://docs.microsoft.com/en-us/windows/package-manager/winget/tab-completion
+# source: 
 Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
+    <#
+    .description
+        from: <https://docs.microsoft.com/en-us/windows/package-manager/winget/tab-completion>
+    .example
+        
+        
+    #>
     param($wordToComplete, $commandAst, $cursorPosition)
         [Console]::InputEncoding = [Console]::OutputEncoding = $OutputEncoding = [System.Text.Utf8Encoding]::new()
         $Local:word = $wordToComplete.Replace('"', '""')
@@ -8,3 +15,4 @@ Register-ArgumentCompleter -Native -CommandName winget -ScriptBlock {
             [System.Management.Automation.CompletionResult]::new($_, $_, 'ParameterValue', $_)
         }
 }
+
