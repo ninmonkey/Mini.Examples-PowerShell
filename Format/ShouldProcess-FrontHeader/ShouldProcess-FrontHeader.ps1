@@ -1,6 +1,10 @@
-﻿<# from: <https://github.com/SeeminglyScience> #>
+﻿<#
+from: <https://github.com/SeeminglyScience>
+#>
 
-function Test-ShouldProcess {
+function Test-ShouldProcessInvoke {
+    <#
+    .#>
     [cmdletbinding(SupportsShouldProcess, PositionalBinding = $false)]
     param()
 

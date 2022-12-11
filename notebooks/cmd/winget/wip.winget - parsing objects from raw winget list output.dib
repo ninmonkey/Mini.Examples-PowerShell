@@ -1,0 +1,132 @@
+#!pwsh
+
+$cache ??= @{} ; $str ??= @{}
+$regex ??= @{ NL = '\r?\n' }
+Set-Alias 'Pre' -value 'Microsoft.PowerShell.Utility\Join-String'
+function HR {@("`n"; '----====',  (' ====' * 6); "`n" ) -join '' }
+function HR { <# functional composition, because you can :P #> 
+    ' ====' * 6 | Join-String -op " <$($Args | Join-String -sep ', ' )> " |  Join-string -op '----==== ' | Join-string -op "`n`n"  -os "`n`n" }
+
+function PassThru { 
+    # written to be short for a notebook, not to be great style
+    # future: [1] -AsCsv to allow lines [2] write-info directly ... do note pollute default  values
+    # [3] limit=0 is -NoLimit the same. limit/max with default to 10,  to prevent accidental spam on huge
+    [cmdletBinding()]
+    param(
+        [Parameter(Mandatory, ValueFromPipeline)]$InputObject
+    )
+    process {
+        $origValue = $PSDefaultParameterValues['PassThru:Infa']
+        $PSDefaultParameterValues['PassThru:Infa'] = 'continue'
+        $InputObject | Write-Information 
+        if($null -eq $OrigValue) { 
+            $PSDefaultParameterValues.Remove('PassThru:Infa')
+        } else { 
+            $PSDefaultParameterValues['PassThru:Infa'] = $origValue
+        }
+        return $InputObject # btbeti intent
+    }
+}
+
+#!pwsh
+
+# real start here
+$cache.List ??=  winget list
+$cache.List | rg -c 'winget' # 100 ish
+$cache.List | rg -c 'msstore'# 0
+$logs = ls "$Env:LOCALAPPDATA\Packages\Microsoft.DesktopAppInstaller_8wekyb3d8bbwe\LocalState\DiagOutputDir" | sort LastWriteTime
+$logs.Count | Join-String -op 'logs '
+
+0..4 |  Pre -op 'name' | PassThru
+
+#!pwsh
+
+# hr 'inital state'
+# # $PSDefaultParameterValues['PassThru:Infa'] = 'continue'
+hr 'after passs'
+$letters = 'a'..'e' | PassThru
+
+return
+$PSDefaultParameterValues.Remove('PassThru:Infa')
+hr 'global default'
+$PSDefaultParameterValues['PassThru:Infa']
+hr 'manual -infa'
+$q = $z | select -last 2 | PassThru -infa 'continue'
+hr 'passthru'
+$q = $z | select -last 2 | PassThru
+hr 'explicit'
+$q
+hr 'outside'
+
+return
+HR 'First10'
+$Cache.List -split $Regex.NL | select -First 10
+HR 'First10 -skip 5'
+$z = $null
+hr 'PassThru'
+$z = $Cache.List -split $Regex.NL | select -First 10 -Skip 4 | PassThru -infa 'continue'
+hr 'First4 of Cache'
+$z
+
+#!pwsh
+
+$reDelim = [regex]::escape( '-\|' )
+$rawStdout ??= winget list # because it's slow
+$foundCount = 0
+$stdout = @(foreach($line in @($rawStdout -split '\r?\n' )) {
+    if($foundCount -gt 2) { 
+        $line
+        continue
+    }
+    
+    if($line -match $reDelim) {
+        $foundCount += 1
+    }
+    # if( -not $foundFirst) {
+    #     if($_ -match $ReDelim) {
+    #         $foundFirst = $true
+    #         continue
+    #     }
+    #     continue
+    # }
+
+    # $state ??= 'start'
+
+}) | select-first 20
+# $rawstdout | select -first 200
+$rawstdout | select -first 20
+$rawstdout.count
+return
+$stdout = $rawStdout | select -Skip 4 
+$stats = @{}
+$Stats.NotMSStoreNotWinget = ($stdout | ? { $_ -notMatch 'winget|msstore' }).count
+$Stats.NotMSStoreNotWinget = $stdout | ? { $_ -notMatch 'winget|msstore' }
+$stats
+
+$foundCount
+
+#!pwsh
+
+$z
+
+#!pwsh
+
+$Cache.List -split '' | select -First 700 | Join-String
+
+#!pwsh
+
+$Cache.List -split '\r?\n'
+| %{ $_ -replace '\s{4}', '🐒'}
+| select -First 10 -Skip 3 
+
+#!pwsh
+
+# $Cache.List -split $Regex.NL | select -First 10
+$str.RawColName = $Cache.List -split $Regex.NL | select -First 1 -skip 2
+$str.RawColName
+
+
+' x x x x' * 10
+$Cache.List -split $Regex.NL | select -First 10 -Skip 4
+
+$z = 0..30 | PassThru
