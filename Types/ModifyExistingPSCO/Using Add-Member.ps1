@@ -24,3 +24,17 @@ $someUser.id = '🐵'
 
 # 'after changing .id, the other property is affected'
 $someUser
+
+<#
+output:
+     name     Id   username
+     ----     --   --------
+     lastname 0951 lastname_0951
+
+after:
+
+     name     Id   username
+     ----     --   --------
+     lastname 🐵   lastname_🐵
+     
+#>
