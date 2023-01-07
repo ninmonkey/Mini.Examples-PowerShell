@@ -21,17 +21,23 @@ Update-TypeData @splatTData -MemberName 'username' -MemberType ScriptProperty -V
     )
 }
 
+Update-TypeData @splatTData -MemberName 'email' -MemberType ScriptProperty -Value {   
+    '{0}@foobar.com' -f @(        
+        $This.name.ToLower() -replace ' ', '_' 
+    )
+}
+
 0..4 | %{ GetUser }
 
 @'
 output:
 
-    name           Id   username
-    ----           --   --------
-    Lukas Keith    7541 7541_lukas_keith
-    Yaritza Cobb   7352 7352_yaritza_cobb
-    Johnathon Wu   0175 0175_johnathon_wu
-    Ariel Lawrence 8973 8973_ariel_lawrence
-    Shyanne Forbes 9495 9495_shyanne_forbes
+name            Id   username             email
+----            --   --------             -----
+Braedon Wilkins 3236 3236_braedon_wilkins braedon_wilkins@foobar.com
+Clayton Clarke  6062 6062_clayton_clarke  clayton_clarke@foobar.com
+James Lewis     2640 2640_james_lewis     james_lewis@foobar.com
+Sonia Jenkins   4960 4960_sonia_jenkins   sonia_jenkins@foobar.com
+Quintin Owen    0713 0713_quintin_owen    quintin_owen@foobar.com
 
 '@
